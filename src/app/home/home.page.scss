@@ -1,0 +1,22 @@
+// TikTok-Style Comment Modal
+::ng-deep .comment-modal {
+  --height: 75%;
+  --border-radius: 16px 16px 0 0;
+  --background: #fff;
+  align-items: flex-end;
+
+  .ion-page {
+    border-radius: 16px 16px 0 0;
+    justify-content: flex-end;
+  }
+}
+
+// Hide scrollbar but keep functionality
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

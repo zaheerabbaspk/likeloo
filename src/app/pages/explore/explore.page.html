@@ -1,0 +1,59 @@
+<ion-content [fullscreen]="true" class="bg-background">
+  <div class="p-8 pt-16">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-10">
+      <h1 class="text-5xl font-black tracking-tighter text-white">Explore</h1>
+      <div class="p-3 rounded-2xl glass-dark active:scale-95 transition-transform border border-white/10">
+        <ion-icon name="notifications-outline" class="text-2xl text-white"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Premium Search Bar -->
+    <div class="hyper-glass p-1.5 rounded-[2rem] mb-10 flex items-center shadow-2xl">
+      <ion-searchbar placeholder="Discover creators, music, trends..." class="toko-searchbar" mode="md">
+      </ion-searchbar>
+    </div>
+
+    <!-- Categories (Horizontal Scroll) -->
+    <div class="mb-12 overflow-x-auto whitespace-nowrap hide-scrollbar flex gap-4 pb-4">
+      <div *ngFor="let cat of categories; first as isFirst"
+        class="px-8 py-3.5 rounded-2xl font-black text-sm transition-all active:scale-90 cursor-pointer shadow-xl border border-white/10"
+        [ngClass]="isFirst ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]' : 'glass-dark text-white/50 hover:text-white'">
+        {{cat}}
+      </div>
+    </div>
+
+    <!-- Trending Section -->
+    <div class="mb-12">
+      <div class="flex items-center gap-3 mb-8">
+        <ion-icon name="flame-outline" class="text-white text-3xl"></ion-icon>
+        <h2 class="text-2xl font-black text-white tracking-tight">Trending Challenges</h2>
+      </div>
+
+      <div class="grid gap-5">
+        <div *ngFor="let item of trending"
+          class="glass-premium p-7 rounded-[3rem] flex items-center justify-between group active:scale-[0.98] transition-all border border-white/10 shadow-2xl">
+          <div class="flex items-center gap-5">
+            <div
+              class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-white/10 group-hover:glow-primary transition-all duration-500">
+              <span class="text-2xl font-black text-white">#</span>
+            </div>
+            <div>
+              <h3 class="font-black text-white text-xl tracking-tighter group-hover:text-glow transition-all">
+                {{item.title}}</h3>
+              <p class="text-white/30 text-[10px] font-black tracking-[0.2em] uppercase mt-1">{{item.count}} CREATIONS
+              </p>
+            </div>
+          </div>
+          <ion-icon name="trending-up-outline"
+            class="text-3xl text-white/20 group-hover:text-white transition-colors group-hover:scale-110 duration-500"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spacer for Nav -->
+    <div class="h-40"></div>
+  </div>
+
+  <app-navigation></app-navigation>
+</ion-content>

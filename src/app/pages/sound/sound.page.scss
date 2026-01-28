@@ -1,0 +1,31 @@
+:host {
+    --ion-background-color: #ffffff;
+}
+
+ion-content {
+    --background: #ffffff;
+}
+
+ion-toolbar {
+    --background: #ffffff;
+    --border-style: none;
+}
+
+.animate-spin-slow {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Ensure fixed buttons are above content
+.fixed {
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+}

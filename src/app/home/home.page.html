@@ -1,0 +1,477 @@
+<ion-content [fullscreen]="true" class="bg-black">
+  <!-- Top Navigation (Friends | For You) -->
+  <!-- Top Navigation (Friends | For You) -->
+  <div
+    class="fixed top-0 left-0 right-0 z-50 flex justify-center items-center p-10 bg-gradient-to-b from-black/60 to-transparent pointer-events-none transition-all duration-700"
+    [ngClass]="{'opacity-0': !showUI}">
+
+    <!-- Live Badge (Top Left - User Request) -->
+    <div class="absolute left-6 pointer-events-auto transition-transform active:scale-95"
+      *ngIf="activeLiveSessions.length > 0" (click)="joinLiveStream(activeLiveSessions[0].stream_id)">
+      <div class="flex items-center gap-1">
+        <ion-icon name="tv-outline" class="text-white text-xl"></ion-icon>
+        <span class="text-white font-black text-lg tracking-wider drop-shadow-md">LIVE</span>
+        <div class="w-2 h-2 rounded-full bg-[#fe2c55] animate-pulse ml-1"></div>
+      </div>
+    </div>
+
+    <div class="flex gap-6 items-center pointer-events-auto">
+      <span class="text-white font-bold text-lg cursor-pointer transition-opacity"
+        [ngClass]="{'text-white/60': currentFeed !== 'following'}" (click)="switchFeed('following')">Following</span>
+      <div class="w-px h-4 bg-white/20"></div>
+      <span class="text-white font-black text-lg cursor-pointer transition-all pb-1"
+        [ngClass]="{'border-b-2 border-white': currentFeed === 'foryou', 'text-white/60': currentFeed !== 'foryou'}"
+        (click)="switchFeed('foryou')">For You</span>
+    </div>
+
+    <!-- Search Icon (Right Side) -->
+    <ion-icon name="search-outline" routerLink="/search"
+      class="absolute right-6 text-2xl text-white pointer-events-auto active:scale-95 transition-transform"></ion-icon>
+  </div>
+
+  <!-- Active Live Streams Feed (Discovery) -->
+  <div *ngIf="showUI && activeLiveSessions.length > 0"
+    class="fixed top-24 right-0 z-40 flex flex-col items-center gap-4 transition-all duration-300">
+
+    <!-- Live Avatars List (Vertical Stack on Right) -->
+    <div class="flex flex-col gap-3 mr-4">
+      <div *ngFor="let session of activeLiveSessions" (click)="joinLiveStream(session.stream_id)"
+        class="relative cursor-pointer group">
+
+        <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-[#fe2c55] to-[#25f4ee] animate-pulse">
+          <img [src]="session.host?.avatar_url || 'https://i.pravatar.cc/100?u=' + session.host_id"
+            class="w-full h-full rounded-full object-cover border border-black">
+        </div>
+
+        <div
+          class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-[#fe2c55] text-white text-[8px] font-black px-1.5 rounded-sm border border-white">
+          LIVE
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vertical Video Feed -->
+  <swiper-container direction="vertical" mousewheel="true" pagination="false" class="w-full h-full bg-black"
+    (slidechange)="onSlideChange($event)">
+
+    <!-- FLOATING UPLOAD HUD (FRIENDS SCREENSHOT MATCH) -->
+    <div *ngIf="((uploadProgress$ | async) ?? 0) > 0"
+      class="fixed top-24 left-6 z-[100] w-14 h-14 bg-black/40 rounded-sm backdrop-blur-sm border border-white/10 flex items-center justify-center p-1 overflow-hidden shadow-2xl">
+
+      <!-- Video Preview Background -->
+      <video class="absolute inset-0 w-full h-full object-cover opacity-60"
+        [src]="'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4?cv=' + ((uploadProgress$ | async) ?? 0)"
+        muted loop autoplay playsinline preload="metadata" crossorigin="anonymous"></video>
+
+      <!-- Circular Progress Overlay -->
+      <div class="relative z-10 flex flex-col items-center justify-center">
+        <div class="relative w-8 h-8 flex items-center justify-center">
+          <svg class="w-full h-full -rotate-90 scale-125">
+            <circle cx="16" cy="16" r="14" fill="transparent" stroke="rgba(255,255,255,0.4)" stroke-width="2"></circle>
+            <circle cx="16" cy="16" r="14" fill="transparent" stroke="white" stroke-width="2"
+              [style.stroke-dasharray]="88"
+              [style.stroke-dashoffset]="88 - (88 * ((uploadProgress$ | async) ?? 0) / 100)">
+            </circle>
+          </svg>
+          <span class="absolute text-[8px] font-black text-white italic drop-shadow-md">{{(uploadProgress$ | async) ??
+            0}}%</span>
+        </div>
+      </div>
+    </div>
+
+
+    <swiper-slide *ngFor="let video of videos; let i = index" class="w-full h-full relative video-container"
+      [attr.data-id]="video.id" (click)="handleTap($event, video.id)">
+      <!-- Video Element with Template Ref for Cinema Engine -->
+      <video #videoPlayer [src]="video.url" class="w-full h-full object-cover pointer-events-auto" loop muted
+        playsinline preload="metadata" crossorigin="anonymous" (click)="debugPlay($event)"
+        (error)="onVideoError($event, video.id)">
+      </video>
+
+      <!-- TikTok Paused State Indicator (WITH MANUAL OVERRIDE) -->
+      <div *ngIf="!isPlaying && activeIndex === i"
+        class="absolute inset-0 flex items-center justify-center bg-black/40 z-[90] cursor-pointer animate-fade-in"
+        (click)="togglePlayback()">
+        <div class="p-8 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+          <ion-icon name="play" class="text-white text-7xl ml-2"></ion-icon>
+        </div>
+        <p class="absolute bottom-1/3 text-white/60 font-black uppercase tracking-[0.3em] text-[10px]">Tap to start
+          original playback</p>
+      </div>
+
+      <!-- Heart Animation Overlay -->
+      <div *ngIf="showHeart" [style.left.px]="heartPosition.x" [style.top.px]="heartPosition.y"
+        class="absolute z-50 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+        <ion-icon name="heart"
+          class="text-[10rem] text-white/95 drop-shadow-[0_0_30px_rgba(255,255,255,0.6)] animate-pulse"></ion-icon>
+      </div>
+
+      <!-- Interaction Overlays -->
+      <div *ngIf="showUI" class="absolute inset-0 z-50 pointer-events-none transition-all duration-500 ease-out">
+
+        <!-- Right Sidebar (Engagement Stack) -->
+        <div class="absolute right-4 bottom-24 flex flex-col gap-5 items-center pointer-events-auto">
+          <div class="relative mb-3" (click)="openProfile($event, video)">
+            <div class="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-2xl">
+              <img [src]="video.userPhoto || ('https://i.pravatar.cc/150?u=' + video.creator)"
+                class="w-full h-full object-cover">
+            </div>
+            <!-- Follow Button Overlay -->
+            <div *ngIf="!video.isFollowed" (click)="followUser(video.userId, $event)"
+              class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 bg-[#fe2c55] rounded-full flex items-center justify-center border-2 border-white shadow-lg cursor-pointer transition-transform active:scale-90 z-20">
+              <ion-icon name="add" class="text-white text-xs font-black"></ion-icon>
+            </div>
+            <!-- Following Checkmark -->
+            <div *ngIf="video.isFollowed"
+              class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 bg-white rounded-full flex items-center justify-center border-2 border-white shadow-lg z-20 pulse-gentle">
+              <ion-icon name="checkmark-circle" class="text-[#fe2c55] text-sm"></ion-icon>
+            </div>
+          </div>
+
+          <div class="flex flex-col items-center gap-0.5 group cursor-pointer" (click)="handleLike(video, $event)">
+            <ion-icon name="heart" [class.text-[#fe2c55]]="video.isLiked" [class.text-white]="!video.isLiked"
+              class="text-4xl drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-transform group-active:scale-125"></ion-icon>
+            <span class="text-[11px] font-black text-shadow-sm text-white">{{formatCount(video.likes)}}</span>
+          </div>
+
+          <div class="flex flex-col items-center gap-0.5 group cursor-pointer" (click)="openComments($event, video)">
+            <ion-icon name="chatbubble"
+              class="text-4xl text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-transform group-active:scale-110"></ion-icon>
+            <span class="text-[11px] font-black text-shadow-sm text-white">{{formatCount(video.comments)}}</span>
+          </div>
+
+          <div class="flex flex-col items-center gap-0.5 group cursor-pointer" (click)="$event.stopPropagation()">
+            <ion-icon name="bookmark"
+              class="text-4xl text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-transform group-active:scale-110"></ion-icon>
+            <span class="text-[11px] font-black text-shadow-sm text-white">45.2K</span>
+          </div>
+
+          <div class="flex flex-col items-center gap-0.5 group cursor-pointer" (click)="openShare($event, video)">
+            <ion-icon name="share-social"
+              class="text-4xl text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-transform group-active:scale-110"></ion-icon>
+            <span class="text-[11px] font-black text-shadow-sm text-white">{{formatCount(video.shares)}}</span>
+          </div>
+
+          <div (click)="openSoundPage($event, video)"
+            class="w-12 h-12 rounded-full bg-gradient-to-tr from-zinc-800 to-black p-2.5 animate-spin-slow shadow-2xl mt-3 border border-zinc-700/50 cursor-pointer active:scale-95 transition-transform">
+            <div class="w-full h-full rounded-full overflow-hidden border border-zinc-600">
+              <img [src]="'https://picsum.photos/50/50?music=' + video.id"
+                class="w-full h-full object-cover opacity-80">
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Text Area -->
+        <div class="absolute bottom-20 left-4 right-20 pointer-events-none drop-shadow-2xl">
+          <div class="pointer-events-auto max-w-lg">
+            <h3 class="font-black text-base text-white mb-1.5 tracking-tight">{{video.creator}}</h3>
+            <p class="text-white/90 text-[13px] font-medium leading-snug mb-3 line-clamp-3">
+              {{video.description}}
+            </p>
+
+            <div (click)="openSoundPage($event, video)"
+              class="flex items-center gap-2 overflow-hidden w-48 mb-4 cursor-pointer active:opacity-60 transition-opacity">
+              <ion-icon name="musical-notes" class="text-white text-xs"></ion-icon>
+              <div class="flex whitespace-nowrap animate-marquee">
+                <span class="text-[13px] font-bold text-white mr-8">{{video.music || video.soundName || 'Original sound
+                  - ' + (video.userName || video.creator)}}</span>
+                <span class="text-[13px] font-bold text-white mr-8">{{video.music || video.soundName || 'Original sound
+                  - ' + (video.userName || video.creator)}}</span>
+              </div>
+            </div>
+
+            <div
+              class="bg-[#fe2c55] text-white flex items-center justify-center px-4 py-3 rounded-[2px] w-full max-w-[280px] shadow-lg cursor-pointer active:scale-95 transition-transform">
+              <span class="font-black text-[13px] tracking-widest uppercase">Learn More</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Video Progress Bar -->
+      <div class="absolute bottom-0 left-0 h-0.5 bg-white/40 z-20 transition-all w-full" *ngIf="activeIndex === i">
+        <div class="h-full bg-white transition-all shadow-[0_0_10px_white]" [style.width]="'40%'"></div>
+      </div>
+    </swiper-slide>
+  </swiper-container>
+
+  <app-navigation *ngIf="showUI"></app-navigation>
+
+  <!-- Profile Overlay (The "Original" Vibes) -->
+  <div *ngIf="showProfile"
+    class="fixed inset-0 z-[100] flex items-end justify-center bg-black/80 backdrop-blur-xl p-6 transition-all duration-500"
+    (click)="closeProfile()">
+    <div class="glass-premium w-full max-w-md rounded-[3rem] p-12 shadow-2xl border border-white/10"
+      (click)="$event.stopPropagation()">
+      <div class="flex flex-col items-center">
+        <div
+          class="w-32 h-32 rounded-full bg-gradient-to-tr from-[#fe2c55] to-[#25f4ee] border-4 border-white/20 mb-8 shadow-2xl overflow-hidden p-1">
+          <img [src]="selectedCreator?.userPhoto || ('https://i.pravatar.cc/300?u=' + selectedCreator?.creator)"
+            class="w-full h-full object-cover rounded-full">
+        </div>
+        <h2 class="text-4xl font-black tracking-tighter mb-2 text-white">{{selectedCreator?.creator}}</h2>
+        <p class="text-white/40 text-sm mb-10 font-bold uppercase tracking-widest">Toko Creator</p>
+
+        <div class="flex justify-between w-full mb-12">
+          <div class="text-center">
+            <div class="text-2xl font-black text-white">1.2M</div>
+            <div class="text-[10px] uppercase font-bold text-white/30">Followers</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-black text-white">850</div>
+            <div class="text-[10px] uppercase font-bold text-white/30">Following</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-black text-white">12.4M</div>
+            <div class="text-[10px] uppercase font-bold text-white/30">Likes</div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 w-full">
+          <button *ngIf="!selectedCreator?.isFollowed" (click)="followUser(selectedCreator?.userId, $event)"
+            class="flex-1 bg-[#fe2c55] text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-widest">
+            Follow
+          </button>
+          <button *ngIf="selectedCreator?.isFollowed"
+            class="flex-1 bg-white/10 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-widest border border-white/20">
+            Following
+          </button>
+          <button class="p-5 glass-dark text-white rounded-2xl active:scale-95 transition-all border border-white/10"
+            (click)="closeProfile()">
+            <ion-icon name="chatbubble-outline" class="text-2xl"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- COMMENTS BOTTOM SHEET -->
+  <ion-modal [isOpen]="isCommentsOpen" (didDismiss)="closeComments()" [initialBreakpoint]="0.75"
+    [breakpoints]="[0, 0.75, 1]" class="comment-modal">
+    <ng-template>
+      <div class="flex flex-col h-full bg-white rounded-t-[14px]">
+
+        <!-- Header -->
+        <div class="relative flex items-center justify-center min-h-[48px] border-b border-gray-100">
+          <span class="text-[14px] font-bold text-gray-900">{{ comments.length }} comments</span>
+          <div class="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer p-2" (click)="closeComments()">
+            <ion-icon name="close" class="text-xl text-gray-800"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Scrollable List -->
+        <div class="flex-1 overflow-y-auto no-scrollbar">
+          <div *ngFor="let comment of comments" class="flex flex-col border-b border-gray-50 last:border-none">
+            <div class="flex items-start gap-3 p-4">
+              <!-- Avatar -->
+              <ion-img [src]="comment.userPhoto || comment.avatar || 'https://i.pravatar.cc/150?u=' + comment.userId"
+                class="w-8 h-8 rounded-full bg-gray-200 object-cover min-w-[32px]"></ion-img>
+
+              <!-- Content -->
+              <div class="flex-1 pt-0.5">
+                <span class="text-[13px] text-gray-500 font-semibold block mb-0.5">{{comment.userName}}</span>
+                <p class="text-[14px] text-gray-900 leading-snug mb-1">{{comment.text}}</p>
+
+                <div class="flex items-center gap-4 mt-2">
+                  <span class="text-[12px] text-gray-400">{{comment.createdAt | date:'shortTime'}}</span>
+                  <span class="text-[12px] text-gray-500 font-bold cursor-pointer hover:text-gray-900 transition-colors"
+                    (click)="setReplyTo(comment)">Reply</span>
+                </div>
+
+                <!-- Reply Count (If any) -->
+                <div *ngIf="comment.replyCount > 0"
+                  class="mt-3 flex items-center gap-2 text-[12px] text-gray-400 font-semibold cursor-pointer active:opacity-60 transition-opacity">
+                  <div class="w-6 h-[1px] bg-gray-200"></div>
+                  <span>View {{comment.replyCount}} replies</span>
+                </div>
+              </div>
+
+              <!-- Like Column -->
+              <div class="flex flex-col items-center gap-1 min-w-[30px]" (click)="toggleCommentLike(comment)">
+                <ion-icon [name]="comment.isLiked ? 'heart' : 'heart-outline'"
+                  class="text-[20px] transition-all active:scale-125" [class.text-[#fe2c55]]="comment.isLiked"
+                  [class.text-gray-300]="!comment.isLiked"></ion-icon>
+                <span class="text-[11px] text-gray-400 font-medium">{{ comment.likes || 0 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="comments.length === 0" class="flex flex-col items-center justify-center pt-20 text-gray-400">
+            <ion-icon name="chatbubble-ellipses-outline" class="text-6xl mb-4 opacity-20"></ion-icon>
+            <p class="text-sm">Be the first to comment</p>
+          </div>
+        </div>
+
+        <!-- Fixed Footer Input -->
+        <div class="p-4 safe-area-bottom bg-white border-t border-gray-100">
+          <!-- Reply Indicator -->
+          <div *ngIf="replyToComment"
+            class="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg mb-3 text-[12px]">
+            <span class="text-gray-500">Replying to <span
+                class="font-bold text-gray-800">{{replyToComment.userName}}</span></span>
+            <ion-icon name="close-circle" class="text-lg text-gray-400 cursor-pointer"
+              (click)="cancelReply()"></ion-icon>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div
+              class="flex-1 h-11 bg-gray-100 rounded-full flex items-center px-4 transition-all focus-within:bg-gray-200">
+              <input type="text" [(ngModel)]="currentComment" (keyup.enter)="submitComment()"
+                [placeholder]="replyToComment ? 'Add reply...' : 'Add comment...'"
+                class="bg-transparent w-full text-[14px] outline-none placeholder:text-gray-500">
+
+              <div class="flex items-center gap-3 pl-3 border-l border-gray-200 ml-2" (click)="submitComment()">
+                <ion-icon name="paper-plane-outline" class="text-xl transition-all active:scale-95"
+                  [class.text-[#fe2c55]]="currentComment.trim()"
+                  [class.text-gray-400]="!currentComment.trim()"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <!-- SHARE BOTTOM SHEET -->
+  <ion-modal [isOpen]="isShareOpen" (didDismiss)="closeShare()" [initialBreakpoint]="0.45" [breakpoints]="[0, 0.45, 1]"
+    handle="false" class="share-modal">
+    <ng-template>
+      <div class="flex flex-col h-full bg-gray-50 text-black rounded-t-[14px]">
+
+        <!-- Header -->
+        <div class="relative flex items-center justify-center py-4 shrink-0">
+          <span class="text-[13px] font-bold text-gray-900">Share to</span>
+          <div class="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer bg-gray-200 rounded-full p-1"
+            (click)="closeShare()">
+            <ion-icon name="close" class="text-lg text-gray-600"></ion-icon>
+          </div>
+        </div>
+
+        <!-- Horizontal Scroll Rows -->
+        <div class="flex-1 overflow-y-auto px-4 pb-8 space-y-6">
+
+          <!-- Row 1: Social Apps -->
+          <div class="flex items-start gap-4 overflow-x-auto no-scrollbar pb-2">
+            <!-- WhatsApp -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('whatsapp')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-sm active:scale-95 transition-transform">
+                <ion-icon name="logo-whatsapp" class="text-3xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">WhatsApp</span>
+            </div>
+
+            <!-- Facebook -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('facebook')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-[#1877F2] flex items-center justify-center text-white shadow-sm active:scale-95 transition-transform">
+                <ion-icon name="logo-facebook" class="text-3xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Facebook</span>
+            </div>
+
+            <!-- Telegram -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('telegram')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-[#2AABEE] flex items-center justify-center text-white shadow-sm active:scale-95 transition-transform">
+                <ion-icon name="paper-plane-outline" class="text-2xl -ml-0.5 mt-0.5"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Telegram</span>
+            </div>
+
+            <!-- Instagram -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('instagram')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shadow-sm active:scale-95 transition-transform">
+                <ion-icon name="logo-instagram" class="text-3xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Instagram</span>
+            </div>
+
+            <!-- Twitter/X -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('twitter')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-black flex items-center justify-center text-white shadow-sm active:scale-95 transition-transform">
+                <ion-icon name="logo-twitter" class="text-2xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Twitter</span>
+            </div>
+          </div>
+
+          <!-- Row 2: Actions -->
+          <div class="flex items-start gap-4 overflow-x-auto no-scrollbar">
+            <!-- Report -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('report')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-gray-200 flex items-center justify-center text-gray-700 active:scale-95 transition-transform">
+                <ion-icon name="flag-outline" class="text-2xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Report</span>
+            </div>
+
+            <!-- Save Video -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('save')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-gray-200 flex items-center justify-center text-gray-700 active:scale-95 transition-transform">
+                <ion-icon name="download-outline" class="text-2xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Save video</span>
+            </div>
+
+            <!-- Delete Video (Owner Only) -->
+            <div *ngIf="sharingVideo?.userId === currentUserUid" class="flex flex-col items-center gap-2 min-w-[60px]"
+              (click)="shareAction('delete')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-red-100 flex items-center justify-center text-red-600 active:scale-95 transition-transform">
+                <ion-icon name="trash-outline" class="text-2xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-red-500 font-medium">Delete</span>
+            </div>
+
+            <!-- Use this sound (NEW CLIP) -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('use-sound')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-pink-100 flex items-center justify-center text-pink-600 active:scale-95 transition-transform">
+                <ion-icon name="musical-notes" class="text-2xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Use sound</span>
+            </div>
+
+            <!-- Copy Link -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('copy')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-[#25D366]/10 flex items-center justify-center text-[#25D366] active:scale-95 transition-transform">
+                <ion-icon name="link-outline" class="text-2xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Copy link</span>
+            </div>
+
+            <!-- Captions -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('captions')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-gray-200 flex items-center justify-center text-gray-700 active:scale-95 transition-transform">
+                <ion-icon name="text-outline" class="text-2xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Captions</span>
+            </div>
+
+            <!-- Stitch -->
+            <div class="flex flex-col items-center gap-2 min-w-[60px]" (click)="shareAction('stitch')">
+              <div
+                class="w-[52px] h-[52px] rounded-full bg-gray-200 flex items-center justify-center text-gray-700 active:scale-95 transition-transform">
+                <ion-icon name="cut-outline" class="text-2xl"></ion-icon>
+              </div>
+              <span class="text-[11px] text-gray-500 font-medium">Stitch</span>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

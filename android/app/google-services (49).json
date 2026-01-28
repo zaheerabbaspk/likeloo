@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "223532124577",
+    "firebase_url": "https://likelo-27611-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "likelo-27611",
+    "storage_bucket": "likelo-27611.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:223532124577:android:df621dd73989d2edb4e3e0",
+        "android_client_info": {
+          "package_name": "com.likelo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "223532124577-1d1j43hilt9ubr3mb744gcm750sbcj1i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUrtHPS6Rqw6QBELDwRqY17-lpQjnxs0U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "223532124577-1d1j43hilt9ubr3mb744gcm750sbcj1i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

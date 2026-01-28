@@ -1,0 +1,8 @@
+.active-tab {
+
+    ion-icon,
+    span {
+        color: inherit !important; // Allow dynamic text-black/white classes to rule
+        opacity: 1 !important;
+    }
+}

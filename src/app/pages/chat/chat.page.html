@@ -1,0 +1,113 @@
+<ion-content [fullscreen]="true" class="bg-[#f9f9f9]">
+  <!-- High Fidelity Immersive Header (Exact Screenshot Match) -->
+  <div class="sticky top-0 bg-white z-50 border-b border-gray-100">
+    <div class="flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-3">
+        <ion-icon name="chevron-back" class="text-3xl text-black active:scale-75 transition-transform"
+          (click)="goBack()"></ion-icon>
+
+        <!-- Avatar with Cyan discovery Ring -->
+        <div
+          class="w-10 h-10 rounded-full p-[1.5px] border-[1.5px] border-[#00c9e0] flex items-center justify-center bg-white">
+          <div class="w-full h-full rounded-full overflow-hidden">
+            <img [src]="receiver?.photoURL || 'https://i.pravatar.cc/100?u=' + receiverId"
+              class="w-full h-full object-cover">
+          </div>
+        </div>
+
+        <div class="flex flex-col">
+          <span class="text-[16px] font-black text-black leading-tight">{{ receiver?.displayName || 'User' }}</span>
+          <!-- Verification if needed -->
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <ion-icon name="flag-outline" class="text-2xl text-black"></ion-icon>
+        <ion-icon name="ellipsis-horizontal" class="text-3xl text-black"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col min-h-full px-4 pt-10 pb-32">
+    <!-- Top Profile Summary (Screenshot Match) -->
+    <div class="flex flex-col items-center mb-12" *ngIf="receiver">
+      <div class="w-24 h-24 rounded-full overflow-hidden mb-4 shadow-sm">
+        <img [src]="receiver.photoURL || 'https://i.pravatar.cc/300?u=' + receiverId"
+          class="w-full h-full object-cover">
+      </div>
+      <h2 class="text-[20px] font-black text-black mb-1">{{ receiver.displayName }}</h2>
+      <p class="text-[13px] text-gray-500 font-medium mb-3">@{{ receiver.username || 'user' }}</p>
+      <div class="flex gap-2 text-[13px] text-gray-400 font-bold mb-6">
+        <span>{{ receiver.following }} following</span>
+        <span>.</span>
+        <span>{{ receiver.followers }} followers</span>
+      </div>
+
+      <button
+        class="bg-[#fe2c55] text-white px-10 py-2.5 rounded-md font-black text-[15px] shadow-sm active:scale-95 transition-all">
+        Follow
+      </button>
+    </div>
+
+    <!-- Date Divider -->
+    <div class="flex justify-center mb-6">
+      <span class="text-[12px] text-gray-400 font-medium">Today 12:55 AM</span>
+    </div>
+
+    <!-- Message Bubbles -->
+    <div class="flex flex-col gap-4">
+      <div *ngFor="let msg of messages" class="flex flex-col" [class.items-end]="msg.senderId === currentUser?.uid">
+        <div class="max-w-[80%] px-4 py-2.5 rounded-[12px] text-[15px] font-medium"
+          [ngClass]="msg.senderId === currentUser?.uid ? 'bg-[#00c9e0] text-white rounded-tr-none' : 'bg-white text-black shadow-sm rounded-tl-none'">
+          {{ msg.text }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Specialized Chat Footer (Screenshot Match) -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-50 px-4 py-3 pb-8 z-50">
+    <!-- Quick Actions Bar -->
+    <div class="flex items-center gap-6 overflow-x-auto no-scrollbar mb-4">
+      <div
+        class="bg-gray-100 p-2 rounded-full flex items-center justify-center min-w-[40px] active:scale-90 transition-transform">
+        <span class="text-xl">❤️</span>
+      </div>
+      <div class="bg-gray-100 p-2 rounded-full flex items-center justify-center min-w-[40px]">
+        <span class="text-xl">😂</span>
+      </div>
+      <div class="bg-gray-100 p-2 rounded-full flex items-center justify-center min-w-[40px]">
+        <span class="text-xl">👍</span>
+      </div>
+      <div class="bg-[#f0f0f0] px-3 py-1.5 rounded-full flex items-center gap-2 active:scale-95 whitespace-nowrap">
+        <img src="https://i.pravatar.cc/50?u=effects" class="w-5 h-5 rounded-full">
+        <span class="text-[13px] font-bold text-gray-700">Effects</span>
+      </div>
+      <div class="bg-[#f0f0f0] px-3 py-1.5 rounded-full flex items-center gap-2 active:scale-95 whitespace-nowrap">
+        <span class="text-[13px] font-bold text-gray-700">🎀 Card</span>
+      </div>
+    </div>
+
+    <!-- Main Input Bar -->
+    <div class="flex items-center gap-3">
+      <div
+        class="w-10 h-10 bg-[#00c9e0] rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-transform">
+        <ion-icon name="camera" class="text-white text-2xl"></ion-icon>
+      </div>
+
+      <div
+        class="flex-1 bg-gray-100 h-11 rounded-full flex items-center px-4 gap-3 focus-within:bg-gray-200 transition-all">
+        <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Message..."
+          class="flex-1 bg-transparent border-none outline-none text-[15px] text-black font-medium placeholder:text-gray-400">
+
+        <ion-icon name="happy-outline" class="text-2xl text-black"></ion-icon>
+        <ion-icon name="image-outline" class="text-2xl text-black"></ion-icon>
+      </div>
+
+      <button *ngIf="newMessage.trim()" (click)="sendMessage()"
+        class="w-10 h-10 bg-[#fe2c55] rounded-full flex items-center justify-center animate-scale-in">
+        <ion-icon name="paper-plane-outline" class="text-white text-xl"></ion-icon>
+      </button>
+    </div>
+  </div>
+</ion-content>

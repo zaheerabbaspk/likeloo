@@ -1,0 +1,189 @@
+<ion-content [fullscreen]="true" class="bg-white">
+
+  <!-- Header (Help & Close) -->
+  <div class="flex items-center justify-between p-4 pt-6">
+    <ion-icon *ngIf="viewState === 'form'" name="chevron-back" class="text-3xl text-black cursor-pointer"
+      (click)="goBackToLanding()"></ion-icon>
+    <ion-icon *ngIf="viewState === 'landing'" name="close-outline"
+      class="text-3xl text-gray-400 cursor-pointer"></ion-icon>
+
+    <ion-icon name="help-circle-outline" class="text-3xl text-gray-400 cursor-pointer"></ion-icon>
+  </div>
+
+  <div class="flex flex-col items-center justify-between h-full pb-10 overflow-y-auto">
+
+    <!-- Main Content Container -->
+    <div class="w-full max-w-md px-8 flex flex-col items-center flex-1 mt-10">
+
+      <!-- Title -->
+      <h1 class="text-3xl font-black text-black mb-3 text-center tracking-tight">
+        {{ authMode === 'signup' ? 'Sign up for Toko' : 'Log in to Toko' }}
+      </h1>
+
+      <p class="text-center text-gray-400 text-sm mb-12 px-6 leading-relaxed">
+        {{ authMode === 'signup' ? 'Create a profile, follow other accounts, make your own videos, and more.' : 'Manage
+        your account, check notifications, comment on videos, and more.' }}
+      </p>
+
+      <!-- VIEW STATE: LANDING (Provider List) -->
+      <div *ngIf="viewState === 'landing'" class="w-full space-y-3 animate-fade-in-up">
+
+        <!-- Use Phone/Email -->
+        <button (click)="openForm('phone')"
+          class="w-full h-12 bg-white border border-gray-200 rounded-[2px] flex items-center px-4 relative active:bg-gray-50 transition-colors">
+          <div class="w-6 flex justify-center"><ion-icon name="person-outline" class="text-lg text-black"></ion-icon>
+          </div>
+          <span class="flex-1 text-center text-[15px] font-bold text-black">{{ authMode === 'signup' ? 'Use phone or
+            email' : 'Use phone / email / username' }}</span>
+        </button>
+
+        <!-- Social Providers -->
+        <button
+          class="w-full h-12 bg-white border border-gray-200 rounded-[2px] flex items-center px-4 relative active:bg-gray-50 transition-colors">
+          <div class="w-6 flex justify-center"><ion-icon name="logo-facebook" class="text-xl text-[#1877F2]"></ion-icon>
+          </div>
+          <span class="flex-1 text-center text-[15px] font-bold text-black">Continue with Facebook</span>
+        </button>
+
+        <button (click)="handleSocialLogin('google')"
+          class="w-full h-12 bg-white border border-gray-200 rounded-[2px] flex items-center px-4 relative active:bg-gray-50 transition-colors">
+          <div class="w-6 flex justify-center"><ion-icon name="logo-google" class="text-xl text-green-600"></ion-icon>
+          </div>
+          <span class="flex-1 text-center text-[15px] font-bold text-black">Continue with Google</span>
+        </button>
+
+        <button
+          class="w-full h-12 bg-white border border-gray-200 rounded-[2px] flex items-center px-4 relative active:bg-gray-50 transition-colors">
+          <div class="w-6 flex justify-center"><ion-icon name="logo-instagram"
+              class="text-xl text-[#E1306C]"></ion-icon></div>
+          <span class="flex-1 text-center text-[15px] font-bold text-black">Continue with Instagram</span>
+        </button>
+
+        <button
+          class="w-full h-12 bg-white border border-gray-200 rounded-[2px] flex items-center px-4 relative active:bg-gray-50 transition-colors">
+          <div class="w-6 flex justify-center"><ion-icon name="logo-twitter" class="text-xl text-[#1DA1F2]"></ion-icon>
+          </div>
+          <span class="flex-1 text-center text-[15px] font-bold text-black">Continue with Twitter</span>
+        </button>
+
+        <button
+          class="w-full h-12 bg-white border border-gray-200 rounded-[2px] flex items-center px-4 relative active:bg-gray-50 transition-colors">
+          <div class="w-6 flex justify-center"><ion-icon name="logo-apple" class="text-xl text-black"></ion-icon></div>
+          <span class="flex-1 text-center text-[15px] font-bold text-black">Continue with Apple</span>
+        </button>
+      </div>
+
+      <!-- VIEW STATE: FORM (Tabbed Inputs) -->
+      <div *ngIf="viewState === 'form'" class="w-full animate-fade-in-right">
+
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 mb-6">
+          <button class="flex-1 pb-3 text-[15px] font-bold text-center uppercase tracking-wide transition-colors"
+            [class.text-black]="formTab === 'phone'" [class.border-b-2]="formTab === 'phone'"
+            [class.border-black]="formTab === 'phone'" [class.text-gray-400]="formTab !== 'phone'"
+            (click)="formTab = 'phone'">
+            Phone
+          </button>
+          <button class="flex-1 pb-3 text-[15px] font-bold text-center uppercase tracking-wide transition-colors"
+            [class.text-black]="formTab === 'email'" [class.border-b-2]="formTab === 'email'"
+            [class.border-black]="formTab === 'email'" [class.text-gray-400]="formTab !== 'email'"
+            (click)="formTab = 'email'">
+            Email / Username
+          </button>
+        </div>
+
+        <!-- Phone Form -->
+        <div *ngIf="formTab === 'phone'" class="space-y-4">
+          <div class="flex gap-3">
+            <div
+              class="w-24 h-12 bg-gray-100 rounded-[2px] flex items-center justify-center text-[15px] font-medium text-black border-r border-gray-300">
+              PK +92 <ion-icon name="caret-down" class="ml-1 text-xs"></ion-icon>
+            </div>
+            <input type="tel" [(ngModel)]="phone"
+              class="flex-1 h-12 bg-gray-100 rounded-[2px] px-3 font-medium text-black outline-none placeholder:text-gray-400"
+              placeholder="Phone number">
+          </div>
+
+          <p class="text-[11px] text-gray-500 leading-snug">
+            Your phone number will be used to improve your experience. Carrier rates may apply.
+          </p>
+
+          <button (click)="submitAuth()"
+            class="w-full bg-[#fe2c55] text-white font-bold py-3.5 rounded-[2px] text-[15px] mt-4 disabled:opacity-50 flex items-center justify-center gap-2"
+            [disabled]="!phone || isLoading">
+            <span *ngIf="isLoading" class="animate-spin">⏳</span>
+            {{ isLoading ? 'Sending...' : 'Send code' }}
+          </button>
+        </div>
+
+        <!-- Email Form -->
+        <div *ngIf="formTab === 'email'" class="space-y-4">
+          <input type="text" [(ngModel)]="email"
+            class="w-full h-12 bg-gray-100 rounded-[2px] px-3 font-medium text-black outline-none placeholder:text-gray-400 border-b border-gray-300 focus:border-black transition-colors"
+            placeholder="Email or Username">
+
+          <input type="password" [(ngModel)]="password"
+            class="w-full h-12 bg-gray-100 rounded-[2px] px-3 font-medium text-black outline-none placeholder:text-gray-400 border-b border-gray-300 focus:border-black transition-colors"
+            placeholder="Password">
+
+          <button (click)="submitAuth()"
+            class="w-full bg-[#fe2c55] text-white font-bold py-3.5 rounded-[2px] text-[15px] mt-4 disabled:opacity-50 flex items-center justify-center gap-2"
+            [disabled]="!email || !password || isLoading">
+            <span *ngIf="isLoading" class="animate-spin">⏳</span>
+            {{ isLoading ? 'Please wait...' : (authMode === 'signup' ? 'Sign up' : 'Log in') }}
+          </button>
+        </div>
+
+      </div>
+
+      <!-- VIEW STATE: OTP Verification -->
+      <div *ngIf="viewState === 'otp'" class="w-full animate-fade-in-right">
+        <div class="text-center mb-6">
+          <h2 class="text-xl font-black text-black mb-2">Enter verification code</h2>
+          <p class="text-gray-400 text-sm">We sent a code to +92{{ phone }}</p>
+        </div>
+
+        <div class="space-y-4">
+          <input type="text" [(ngModel)]="otp" maxlength="6" inputmode="numeric"
+            class="w-full h-14 bg-gray-100 rounded-[2px] px-4 font-bold text-2xl text-black text-center tracking-[0.5em] outline-none placeholder:text-gray-400 placeholder:tracking-normal placeholder:text-base"
+            placeholder="000000">
+
+          <button (click)="verifyOTP()"
+            class="w-full bg-[#fe2c55] text-white font-bold py-3.5 rounded-[2px] text-[15px] disabled:opacity-50 flex items-center justify-center gap-2"
+            [disabled]="!otp || otp.length < 6 || isLoading">
+            <span *ngIf="isLoading" class="animate-spin">⏳</span>
+            {{ isLoading ? 'Verifying...' : 'Verify' }}
+          </button>
+
+          <button (click)="sendOTP()" class="w-full text-[#fe2c55] font-bold py-2 text-[14px]" [disabled]="isLoading">
+            Resend code
+          </button>
+        </div>
+      </div>
+
+      <!-- Recaptcha container (invisible) -->
+      <div id="recaptcha-container"></div>
+
+    </div>
+
+    <!-- Bottom Toggle Footer -->
+    <div
+      class="w-full border-t border-gray-200 py-6 bg-white z-10 flex flex-col items-center gap-4 fixed bottom-0 left-0 right-0">
+
+      <p class="text-[11px] text-gray-400 text-center px-10 leading-tight">
+        By continuing, you agree to TikTok's <span class="font-bold text-black">Terms of Use</span> and confirm that you
+        have read TikTok's <span class="font-bold text-black">Privacy Policy</span>.
+      </p>
+
+      <div class="flex items-center gap-1 mt-2">
+        <span class="text-[15px] font-bold text-black">
+          {{ authMode === 'signup' ? 'Already have an account?' : 'Don\'t have an account?' }}
+        </span>
+        <button class="text-[15px] font-bold text-[#fe2c55] uppercase" (click)="toggleAuthMode()">
+          {{ authMode === 'signup' ? 'Log in' : 'Sign up' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</ion-content>

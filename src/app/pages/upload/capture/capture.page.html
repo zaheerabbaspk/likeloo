@@ -1,0 +1,184 @@
+<ion-content [fullscreen]="true" class="bg-black">
+  <!-- Top Overlay -->
+  <div
+    class="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-6 bg-gradient-to-b from-black/40 to-transparent">
+    <ion-icon name="close-outline" class="text-4xl text-white cursor-pointer active:scale-75 transition-transform"
+      (click)="close()"></ion-icon>
+
+    <div
+      class="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full border border-white/20 active:scale-95 transition-transform">
+      <ion-icon [name]="selectedSound ? 'musical-notes' : 'add'" class="text-white text-sm"
+        [ngClass]="{'animate-spin-slow': selectedSound}"></ion-icon>
+      <span class="text-white text-[13px] font-bold">{{selectedSound ? selectedSound.title : 'Add sound'}}</span>
+    </div>
+
+    <div class="w-10"></div> <!-- Spacer -->
+  </div>
+
+  <!-- Face/Camera Preview Area (High Fidelity Viewfinder) -->
+  <div class="w-full h-full bg-black overflow-hidden flex items-center justify-center relative">
+    <video #viewfinder autoplay muted playsinline class="w-full h-full object-cover transition-all duration-500"
+      [style.filter]="getFilterCSS()"></video>
+
+    <!-- Timer Indicator -->
+    <div *ngIf="isRecording" class="absolute top-20 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2">
+      <div class="w-2 h-2 rounded-full bg-[#fe2c55] animate-pulse"></div>
+      <span class="text-white font-black text-sm tracking-widest">00:{{recordingTime < 10 ? '0' +recordingTime :
+          recordingTime}}</span>
+    </div>
+
+    <!-- Right Tool Bar (Screenshot Match with Functionality) -->
+    <div class="absolute right-4 top-24 z-50 flex flex-col gap-6 items-center">
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform" (click)="initCamera()">
+        <ion-icon name="repeat" class="text-3xl text-white"></ion-icon>
+        <span class="text-[10px] text-white font-bold">Flip</span>
+      </div>
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform" (click)="toggleFlash()">
+        <ion-icon [name]="isFlashOn ? 'flash' : 'flash-outline'" class="text-3xl"
+          [ngClass]="isFlashOn ? 'text-yellow-400' : 'text-white'"></ion-icon>
+        <span class="text-[10px] text-white font-bold">Flash</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <ion-icon name="timer-outline" class="text-3xl text-white opacity-40"></ion-icon>
+        <span class="text-[10px] text-white/40 font-bold">Timer</span>
+      </div>
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform" (click)="toggleSpeed()">
+        <ion-icon name="speedometer-outline" class="text-3xl"
+          [ngClass]="selectedSpeed !== 1 ? 'text-[#fe2c55]' : 'text-white'"></ion-icon>
+        <span class="text-[10px] font-bold"
+          [ngClass]="selectedSpeed !== 1 ? 'text-[#fe2c55]' : 'text-white'">{{selectedSpeed}}x</span>
+      </div>
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform" (click)="toggleFilters()">
+        <ion-icon name="color-filter-outline" class="text-3xl"
+          [ngClass]="currentFilter !== 'none' ? 'text-blue-400' : 'text-white'"></ion-icon>
+        <span class="text-[10px] font-bold"
+          [ngClass]="currentFilter !== 'none' ? 'text-blue-400' : 'text-white'">Filters</span>
+      </div>
+      <ion-icon name="chevron-down-outline" class="text-white text-xl"></ion-icon>
+    </div>
+
+    <!-- SPEED SELECTOR OVERLAY -->
+    <div *ngIf="showSpeedMenu"
+      class="absolute bottom-40 left-10 right-10 z-[110] bg-black/60 backdrop-blur-xl p-4 rounded-2xl border border-white/10 flex justify-around animate-fade-in">
+      <div *ngFor="let s of [0.5, 1, 2, 3]" (click)="setSpeed(s)"
+        class="px-4 py-2 rounded-lg font-black text-sm transition-all"
+        [ngClass]="selectedSpeed === s ? 'bg-white text-black scale-110' : 'text-white/60'">
+        {{s}}x
+      </div>
+    </div>
+
+    <!-- FILTERS SELECTOR OVERLAY -->
+    <div *ngIf="showFiltersMenu"
+      class="absolute bottom-40 left-4 right-4 z-[110] bg-black/60 backdrop-blur-xl p-4 rounded-2xl border border-white/10 flex gap-4 overflow-x-auto no-scrollbar animate-fade-in">
+      <div *ngFor="let f of filters" (click)="setFilter(f.name)"
+        class="flex flex-col items-center gap-2 min-w-[70px] transition-all"
+        [ngClass]="currentFilter === f.name ? 'scale-110' : 'opacity-60'">
+        <div class="w-12 h-12 rounded-full border-2"
+          [ngClass]="currentFilter === f.name ? 'border-[#fe2c55]' : 'border-white/20'"
+          [style.background]="'linear-gradient(45deg, #444, #888)'" [style.filter]="f.css"></div>
+        <span class="text-[10px] text-white font-bold">{{f.label}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom UI -->
+  <div class="absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black to-transparent pb-10">
+
+    <!-- Mode Selector (Dynamic Fidelity) -->
+    <div class="flex justify-center gap-6 mb-8 overflow-x-auto no-scrollbar px-10 items-center h-10">
+      <span class="font-bold text-[13px] transition-all cursor-pointer whitespace-nowrap"
+        [ngClass]="activeMode === 'LIVE' ? 'text-[#fe2c55] border-b-2 border-[#fe2c55] pb-1' : 'text-white/40'"
+        (click)="setMode('LIVE')">LIVE</span>
+      <span class="font-bold text-[13px] transition-all cursor-pointer whitespace-nowrap"
+        [ngClass]="activeMode === '10m' ? 'text-white border-b-2 border-white pb-1' : 'text-white/40'"
+        (click)="setMode('10m')">10m</span>
+      <span class="font-bold text-[13px] transition-all cursor-pointer whitespace-nowrap"
+        [ngClass]="activeMode === '60s' ? 'text-white border-b-2 border-white pb-1' : 'text-white/40'"
+        (click)="setMode('60s')">60s</span>
+      <span class="font-black text-[13px] transition-all cursor-pointer whitespace-nowrap"
+        [ngClass]="activeMode === '10s' ? 'text-white border-b-2 border-white pb-1' : 'text-white/40'"
+        (click)="setMode('10s')">10s</span>
+      <span class="font-bold text-[13px] transition-all cursor-pointer whitespace-nowrap"
+        [ngClass]="activeMode === 'PHOTO' ? 'text-white border-b-2 border-white pb-1' : 'text-white/40'"
+        (click)="setMode('PHOTO')">PHOTO</span>
+      <span class="font-bold text-[13px] transition-all cursor-pointer whitespace-nowrap"
+        [ngClass]="activeMode === 'TEXT' ? 'text-white border-b-2 border-white pb-1' : 'text-white/40'"
+        (click)="setMode('TEXT')">TEXT</span>
+    </div>
+
+    <!-- Controls Row -->
+    <div class="flex items-center justify-around px-8">
+      <!-- Gallery Preview -->
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform" (click)="triggerFileInput()">
+        <div
+          class="w-10 h-10 rounded-md border border-white/40 overflow-hidden bg-white/10 flex items-center justify-center">
+          <ion-icon name="images-outline" class="text-white text-xl"></ion-icon>
+        </div>
+        <span class="text-[10px] text-white font-bold">Upload</span>
+      </div>
+
+      <!-- MAIN ACTION BUTTON (Conditional for LIVE) -->
+      <div *ngIf="activeMode !== 'LIVE'"
+        class="relative w-24 h-24 flex items-center justify-center cursor-pointer transition-all duration-300"
+        [ngClass]="{'scale-110': isRecording}" (click)="handleMainAction()">
+        <div class="absolute inset-0 rounded-full border-[6px]"
+          [ngClass]="isRecording ? 'border-[#fe2c55]/40' : 'border-white/40'"></div>
+        <div class="absolute inset-2 rounded-full border-[2px] border-white"></div>
+
+        <!-- Inner circle for Photo vs Video -->
+        <div *ngIf="activeMode !== 'PHOTO'"
+          class="w-16 h-16 rounded-full bg-[#fe2c55] shadow-[0_0_30px_rgba(254,44,85,0.6)] transition-all duration-300"
+          [ngClass]="{'rounded-sm w-10 h-10': isRecording}"></div>
+
+        <div *ngIf="activeMode === 'PHOTO'"
+          class="w-16 h-16 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.4)]"></div>
+      </div>
+
+      <!-- GO LIVE BUTTON (When LIVE mode is active) -->
+      <button *ngIf="activeMode === 'LIVE'" (click)="goLive()"
+        class="bg-gradient-to-r from-[#fe2c55] to-[#ff6f61] text-white font-black text-lg px-10 py-4 rounded-full shadow-[0_0_30px_rgba(254,44,85,0.6)] active:scale-95 transition-transform animate-pulse">
+        Go LIVE
+      </button>
+
+      <!-- Effects -->
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform">
+        <div class="w-10 h-10 rounded-md bg-white/10 flex items-center justify-center">
+          <ion-icon name="sparkles" class="text-blue-300 text-xl"></ion-icon>
+        </div>
+        <span class="text-[10px] text-white font-bold">Effects</span>
+      </div>
+    </div>
+
+    <!-- Bottom Tabs -->
+    <div class="flex justify-center gap-10 mt-8 mb-4">
+      <span class="text-white font-black text-xs tracking-widest">AI SELF</span>
+      <span class="text-white font-black text-xs tracking-widest border-b-2 border-white pb-1">POST</span>
+      <span class="text-white font-black text-xs tracking-widest">CREATE</span>
+    </div>
+  </div>
+
+  <!-- TEXT EDITOR MODAL (TikTok Style) -->
+  <div *ngIf="showTextEditor"
+    class="fixed inset-0 z-[200] bg-black/90 backdrop-blur-2xl flex flex-col p-6 animate-fade-in">
+    <div class="flex justify-between items-center mb-10">
+      <span class="text-white/60 font-bold" (click)="showTextEditor = false">Cancel</span>
+      <button class="bg-white text-black px-6 py-2 rounded-full font-black" (click)="saveTextContent()">Done</button>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center">
+      <textarea
+        class="bg-transparent border-none outline-none text-white text-4xl font-black text-center w-full focus:ring-0 placeholder:text-white/20"
+        [(ngModel)]="capturedText" placeholder="Type something..." autofocus>
+          </textarea>
+    </div>
+
+    <div class="flex justify-center gap-6 pb-10">
+      <div class="w-12 h-12 rounded-full bg-[#fe2c55] border-2 border-white"></div>
+      <div class="w-12 h-12 rounded-full bg-blue-500 border-2 border-white/20"></div>
+      <div class="w-12 h-12 rounded-full bg-yellow-400 border-2 border-white/20"></div>
+      <div class="w-12 h-12 rounded-full bg-white border-2 border-white/20"></div>
+    </div>
+  </div>
+
+  <input type="file" #fileInput class="hidden" (change)="onFileSelected($event)" accept="video/*">
+</ion-content>

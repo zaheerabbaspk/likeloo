@@ -1,0 +1,94 @@
+<ion-content [fullscreen]="true" class="bg-white">
+    <!-- Tik Tok Style Header -->
+    <div class="flex items-center justify-between p-2 sticky top-0 bg-white z-50 border-b border-gray-50">
+        <div class="flex items-center gap-1 flex-1">
+            <ion-buttons slot="start">
+                <ion-back-button defaultHref="/home" text="" icon="arrow-back-outline"
+                    class="text-2xl text-black"></ion-back-button>
+            </ion-buttons>
+
+            <!-- Search Bar -->
+            <div class="flex-1 bg-gray-100/80 rounded-sm flex items-center px-3 py-1.5 ml-1 mr-2">
+                <ion-icon name="search-outline" class="text-gray-500 mr-2 text-lg"></ion-icon>
+                <span class="text-gray-500 text-sm font-medium">Find related content</span>
+            </div>
+        </div>
+
+        <ion-icon name="share-social-outline" class="text-2xl text-black mr-2"></ion-icon>
+    </div>
+
+    <div class="p-4">
+        <!-- Sound Info Section -->
+        <div class="flex gap-4 mb-6">
+            <div class="relative w-28 h-28 rounded-md overflow-hidden bg-gray-100 group">
+                <img [src]="soundData.userPhoto" class="w-full h-full object-cover">
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+                        <ion-icon name="play-outline" class="text-white text-xl fill-white ml-0.5"></ion-icon>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col justify-center gap-1.5">
+                <div class="flex items-center gap-1">
+                    <h1 class="text-[19px] font-black text-black leading-tight">{{soundData.title}}</h1>
+                    <ion-icon name="pencil-outline" class="text-gray-400 text-sm ml-1"></ion-icon>
+                </div>
+                <div class="flex items-center text-black font-semibold text-[14px] cursor-pointer active:opacity-60">
+                    {{soundData.userName}}
+                    <ion-icon name="chevron-forward" class="text-xs ml-0.5"></ion-icon>
+                </div>
+                <p class="text-gray-400 text-[13px] font-medium">{{soundData.postCount}} post{{soundData.postCount !== 1
+                    ? 's' : ''}}</p>
+            </div>
+        </div>
+
+        <!-- Favorites Button -->
+        <button
+            class="w-full py-2.5 rounded-full border border-gray-200 flex items-center justify-center gap-2 mb-8 active:bg-gray-50 active:scale-[0.98] transition-all">
+            <ion-icon name="bookmark-outline" class="text-xl text-black"></ion-icon>
+            <span class="text-black font-bold text-[14px]">Add to Favorites</span>
+        </button>
+
+        <!-- Empty State -->
+        <div *ngIf="videos.length === 0" class="flex flex-col items-center justify-center pt-24 pb-12">
+            <h2 class="text-black font-black text-[17px] mb-2 leading-tight text-center">No videos with this sound yet
+            </h2>
+            <p class="text-gray-500 text-[13px] text-center font-medium leading-relaxed max-w-[280px]">
+                The first video using this sound will get an "Original" tag!
+            </p>
+        </div>
+
+        <!-- Video Grid (If any) -->
+        <div class="grid grid-cols-3 gap-[1px] -mx-4" *ngIf="videos.length > 0">
+            <div *ngFor="let video of videos"
+                class="aspect-[3/4] bg-zinc-100 relative group overflow-hidden cursor-pointer active:opacity-80">
+                <video [src]="video.url" class="w-full h-full object-cover" muted playsinline></video>
+                <div
+                    class="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 pointer-events-none drop-shadow-md z-10 font-bold">
+                    <ion-icon name="play-outline" class="text-xs text-white"></ion-icon>
+                    <span class="text-[10px] text-white">{{formatCount(video.likes) || '0'}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Action Bar (Screenshot Matching) -->
+    <div class="fixed bottom-6 left-0 right-0 z-[60] px-5 flex items-center justify-between gap-3 safe-area-bottom">
+        <!-- Add to Story -->
+        <button
+            class="flex-1 bg-white border border-gray-100 h-12 rounded-full flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
+            <div class="w-6 h-6 rounded-full overflow-hidden border border-gray-200">
+                <img [src]="soundData.userPhoto" class="w-full h-full object-cover">
+            </div>
+            <span class="text-black font-black text-[14px]">Add to Story</span>
+        </button>
+
+        <!-- Use Sound Button (Red/TikTok Style) -->
+        <button (click)="useSound()"
+            class="flex-[1.2] bg-[#fe2c55] h-12 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-[#fe2c55]/30 active:scale-95 transition-transform">
+            <ion-icon name="videocam-outline" class="text-white text-xl fill-white"></ion-icon>
+            <span class="text-white font-black text-[14px]">Use sound</span>
+        </button>
+    </div>
+</ion-content>

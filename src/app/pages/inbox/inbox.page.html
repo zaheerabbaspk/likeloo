@@ -1,0 +1,115 @@
+<ion-content [fullscreen]="true" class="bg-white">
+  <!-- Top Nav -->
+  <div class="flex items-center justify-between p-4 sticky top-0 bg-white z-50">
+    <div class="w-10 flex items-center justify-center">
+      <ion-icon name="add-circle" class="text-2xl text-black"></ion-icon>
+    </div>
+    <h2 class="text-base font-black text-black">Inbox <ion-icon name="caret-down" class="text-xs"></ion-icon></h2>
+    <div class="w-10 flex items-center justify-center">
+      <ion-icon name="search-outline" class="text-2xl text-black"></ion-icon>
+    </div>
+  </div>
+
+  <!-- Set Permission Banner -->
+  <div class="m-4 bg-gray-50 rounded-lg p-4 flex items-center justify-between border border-gray-100 shadow-sm">
+    <div class="flex-1 pr-4">
+      <p class="text-[13px] font-bold text-gray-800 leading-tight">
+        Set permission to "Everyone" to receive messages from followers
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="bg-[#fe2c55] text-white font-black px-5 py-1.5 rounded-md text-[13px]">Set</button>
+      <ion-icon name="close" class="text-gray-400 text-xl"></ion-icon>
+    </div>
+  </div>
+
+  <!-- Stories Bar -->
+  <div class="flex gap-4 overflow-x-auto px-4 mb-8 no-scrollbar">
+    <div *ngFor="let story of stories" class="flex flex-col items-center flex-shrink-0 gap-1.5">
+      <div class="w-16 h-16 rounded-full p-[2px] relative" [ngClass]="story.isMe ? '' : 'border-2 border-[#fe2c55]'">
+        <img [src]="story.img" class="w-full h-full rounded-full object-cover">
+        <div *ngIf="story.isMe"
+          class="absolute bottom-0 right-0 w-5 h-5 bg-[#25f4ee] rounded-full border-2 border-white flex items-center justify-center">
+          <ion-icon name="add" class="text-white text-xs font-black"></ion-icon>
+        </div>
+      </div>
+      <span class="text-[11px] font-medium text-gray-500">{{story.name}}</span>
+    </div>
+  </div>
+
+  <!-- Activity List -->
+  <div class="px-4 pb-32">
+    <!-- New Followers Row -->
+    <div class="flex items-center gap-4 py-4 active:bg-gray-50 transition-colors cursor-pointer">
+      <div class="w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center shadow-md">
+        <ion-icon name="person-add" class="text-white text-2xl"></ion-icon>
+      </div>
+      <div class="flex-1">
+        <h3 class="text-sm font-black text-black">New followers</h3>
+        <p class="text-[12px] text-gray-400">decaysample started following you</p>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="text-gray-300"></ion-icon>
+    </div>
+
+    <!-- Activities Row -->
+    <div class="flex items-center gap-4 py-4 active:bg-gray-50 transition-colors cursor-pointer">
+      <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center shadow-md relative">
+        <ion-icon name="heart" class="text-white text-2xl"></ion-icon>
+        <div
+          class="absolute -top-1 -right-1 w-5 h-5 bg-[#fe2c55] rounded-full border-2 border-white flex items-center justify-center text-[10px] font-black text-white">
+          99+
+        </div>
+      </div>
+      <div class="flex-1">
+        <h3 class="text-sm font-black text-black">Activities</h3>
+        <p class="text-[12px] text-gray-400">Jeri-Ann Keel liked a video you r...</p>
+      </div>
+      <ion-icon name="chevron-forward-outline" class="text-gray-300"></ion-icon>
+    </div>
+
+    <!-- System Notifications Row -->
+    <div class="flex items-center gap-4 py-4 active:bg-gray-50 transition-colors cursor-pointer">
+      <div class="w-12 h-12 bg-[#010101] rounded-full flex items-center justify-center shadow-md">
+        <ion-icon name="archive-outline" class="text-white text-2xl"></ion-icon>
+      </div>
+      <div class="flex-1">
+        <h3 class="text-sm font-black text-black">System notifications</h3>
+        <p class="text-[12px] text-gray-400">TikTok: Updates to your post perfo...</p>
+      </div>
+      <span class="text-[11px] text-gray-300">1h</span>
+    </div>
+
+    <!-- Real Message Conversations (Exact Copy) -->
+    <div *ngFor="let conv of conversations" (click)="openChat(conv)"
+      class="flex items-center gap-4 py-4 active:bg-gray-50 transition-colors cursor-pointer border-b border-gray-50 last:border-none">
+      <div class="relative">
+        <!-- Cyan Ring for Chat -->
+        <div
+          class="w-[52px] h-[52px] rounded-full p-[1.5px] border-[1.5px] border-[#00c9e0] flex items-center justify-center bg-white">
+          <div class="w-full h-full rounded-full overflow-hidden">
+            <img [src]="conv.otherUser.photoURL || 'https://i.pravatar.cc/100?u=' + conv.otherUser.uid"
+              class="w-full h-full object-cover">
+          </div>
+        </div>
+        <!-- Unread Badge -->
+        <div *ngIf="conv.unread"
+          class="absolute -top-1 -right-1 w-4 h-4 bg-[#fe2c55] rounded-full border-2 border-white"></div>
+      </div>
+
+      <div class="flex-1">
+        <h3 class="text-[15px] font-black text-black leading-tight">{{conv.otherUser.displayName}}</h3>
+        <p class="text-[13px] text-gray-400 font-medium truncate max-w-[200px]" [class.text-black]="conv.unread"
+          [class.font-bold]="conv.unread">
+          {{conv.lastMessage}}
+        </p>
+      </div>
+
+      <div class="flex flex-col items-end gap-1">
+        <span class="text-[11px] text-gray-300 font-medium">3m ago</span>
+        <ion-icon name="chevron-forward-outline" class="text-gray-200 text-sm"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <app-navigation></app-navigation>
+</ion-content>

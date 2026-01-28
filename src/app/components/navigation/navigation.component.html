@@ -1,0 +1,52 @@
+<div class="fixed bottom-0 left-0 right-0 z-50 border-t px-4 pb-4 pt-2 transition-all duration-300"
+  [ngClass]="isDarkMode ? 'bg-[#010101] border-white/5' : 'bg-white border-gray-100'">
+  <div class="flex items-center justify-between max-w-lg mx-auto">
+
+    <!-- Home -->
+    <div class="flex flex-col items-center gap-1 cursor-pointer w-16" routerLink="/home" routerLinkActive="active-tab"
+      [ngClass]="isDarkMode ? 'text-white' : 'text-black'">
+      <ion-icon name="home" class="text-2xl" [ngClass]="isDarkMode ? 'text-white' : 'text-black'"></ion-icon>
+      <span class="text-[9px] font-bold uppercase tracking-tighter"
+        [ngClass]="isDarkMode ? 'text-white' : 'text-black'">Home</span>
+    </div>
+
+    <!-- Friends (TikTok Style) -->
+    <div class="flex flex-col items-center gap-1 cursor-pointer w-16" routerLink="/home" (click)="goToFriends()">
+      <ion-icon name="people-outline" class="text-2xl"
+        [ngClass]="isDarkMode ? 'text-white/60' : 'text-gray-400'"></ion-icon>
+      <span class="text-[9px] font-bold uppercase tracking-tighter"
+        [ngClass]="isDarkMode ? 'text-white/60' : 'text-gray-400'">Friends</span>
+    </div>
+
+    <!-- Create Button (TikTok Style) -->
+    <div class="relative w-11 h-7 flex items-center justify-center group active:scale-90 transition-transform"
+      (click)="triggerUpload()">
+      <div class="absolute inset-x-0 inset-y-0 bg-[#25f4ee] rounded-md -translate-x-1.5 opacity-90"></div>
+      <div class="absolute inset-x-0 inset-y-0 bg-[#fe2c55] rounded-md translate-x-1.5 opacity-90"></div>
+      <div class="relative w-full h-full rounded-md flex items-center justify-center"
+        [ngClass]="isDarkMode ? 'bg-white' : 'bg-black'">
+        <ion-icon name="add" class="text-2xl font-black"
+          [ngClass]="isDarkMode ? 'text-black' : 'text-white'"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Inbox -->
+    <div class="flex flex-col items-center gap-1 cursor-pointer w-16" routerLink="/inbox" routerLinkActive="active-tab"
+      [ngClass]="isDarkMode ? 'text-white' : 'text-black'">
+      <ion-icon name="chatbubble-outline" class="text-2xl"
+        [ngClass]="isDarkMode ? 'text-white/60' : 'text-gray-400'"></ion-icon>
+      <span class="text-[9px] font-bold uppercase tracking-tighter"
+        [ngClass]="isDarkMode ? 'text-white/60' : 'text-gray-400'">Inbox</span>
+    </div>
+
+    <!-- Profile -->
+    <div class="flex flex-col items-center gap-1 cursor-pointer w-16" routerLink="/profile"
+      routerLinkActive="active-tab" [ngClass]="isDarkMode ? 'text-white' : 'text-black'">
+      <ion-icon name="person-outline" class="text-2xl"
+        [ngClass]="isDarkMode ? 'text-white/60' : 'text-gray-400'"></ion-icon>
+      <span class="text-[9px] font-bold uppercase tracking-tighter"
+        [ngClass]="isDarkMode ? 'text-white/60' : 'text-gray-400'">Profile</span>
+    </div>
+
+  </div>
+</div>

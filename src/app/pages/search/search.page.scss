@@ -1,0 +1,27 @@
+:host {
+    --ion-background-color: #ffffff;
+}
+
+ion-content {
+    --background: #ffffff;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+// Ensure smooth transitions for tab indicator
+.absolute.bottom-1 {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Active button states
+button:active {
+    opacity: 0.8;
+    transform: scale(0.95);
+}

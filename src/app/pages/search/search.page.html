@@ -1,0 +1,127 @@
+<ion-content class="bg-white">
+  <!-- Specialized TikTok Header (Exact Screenshot Match) -->
+  <div class="sticky top-0 bg-white z-[100]">
+    <div class="flex items-center gap-3 p-3">
+      <ion-icon name="arrow-back-outline"
+        class="text-3xl text-black cursor-pointer active:scale-95 transition-transform" (click)="goBack()"></ion-icon>
+
+      <div class="flex-1 h-10 bg-[#f1f1f2] rounded-md flex items-center px-3 gap-2">
+        <ion-icon name="search-outline" class="text-xl text-black font-bold"></ion-icon>
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput($event)"
+          placeholder="Search anything..."
+          class="flex-1 bg-transparent border-none outline-none text-black text-[15px] font-medium placeholder:text-gray-400">
+        <ion-icon *ngIf="searchTerm" name="close-circle" class="text-xl text-gray-400 cursor-pointer"
+          (click)="clearSearch()"></ion-icon>
+      </div>
+
+      <ion-icon name="ellipsis-horizontal" class="text-3xl text-black"></ion-icon>
+    </div>
+
+    <!-- Scrolling Tab System -->
+    <div class="flex overflow-x-auto no-scrollbar border-b border-gray-100">
+      <div *ngFor="let tab of ['Top', 'Videos', 'Photos', 'Users', 'Sounds']" (click)="setTab(tab.toLowerCase())"
+        class="px-5 py-3 cursor-pointer whitespace-nowrap transition-all relative">
+        <span class="text-[16px] font-black"
+          [ngClass]="activeTab === tab.toLowerCase() ? 'text-black' : 'text-gray-400'">
+          {{tab}}
+        </span>
+        <div *ngIf="activeTab === tab.toLowerCase()"
+          class="absolute bottom-1 left-4 right-4 h-[2px] bg-black rounded-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Results Container -->
+  <div class="p-0">
+    <!-- USERS SECTION (Exact Screenshot Match) -->
+    <div *ngIf="activeTab === 'top' || activeTab === 'users'" class="mb-4">
+      <div class="flex justify-between items-center px-4 py-3">
+        <h2 class="text-[18px] font-black text-black">Users</h2>
+        <span class="text-gray-400 text-[14px] font-bold flex items-center gap-1" (click)="setTab('users')">
+          View all <ion-icon name="chevron-forward" class="text-xs"></ion-icon>
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-4 px-4">
+        <div *ngFor="let user of users" class="flex items-center justify-between" (click)="goToProfile(user)">
+          <div class="flex items-center gap-3">
+            <!-- Avatar with Cyan Ring -->
+            <div class="w-[70px] h-[70px] rounded-full p-[2px] border-[2.5px] border-[#00c9e0]">
+              <div class="w-full h-full rounded-full border-2 border-white overflow-hidden">
+                <img [src]="user.avatar" class="w-full h-full object-cover">
+              </div>
+            </div>
+
+            <div class="flex flex-col">
+              <span class="text-black font-black text-[16px] leading-tight">{{user.text}}</span>
+              <span class="text-gray-400 font-bold text-[14px] leading-tight">{{user.subtext}}</span>
+              <div class="flex items-center gap-1 text-gray-400/80 text-[13px] font-medium mt-0.5">
+                <span>{{formatCount(user.followerCount)}} followers</span>
+                <span>.</span>
+                <span>{{formatCount(user.likeCount)}} likes</span>
+              </div>
+            </div>
+          </div>
+
+          <button (click)="followUser($event, user)"
+            class="px-6 py-2.5 rounded-full font-black text-[15px] transition-all active:scale-95"
+            [ngClass]="user.isFollowing ? 'bg-gray-100 text-black' : 'bg-[#fe2c55] text-white'">
+            {{user.isFollowing ? 'Following' : 'Follow'}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEOS SECTION (Exact Screenshot Match) -->
+    <div *ngIf="activeTab === 'top' || activeTab === 'videos'" class="bg-gray-50 min-h-screen">
+      <div class="grid grid-cols-2 gap-[1px]">
+        <div *ngFor="let video of videos; let i = index" class="bg-white flex flex-col p-0 pb-3">
+          <div class="aspect-[3/4.2] bg-zinc-100 relative overflow-hidden">
+            <video [src]="video.videoUrl" class="w-full h-full object-cover" muted playsinline></video>
+
+            <!-- Top Liked Badge -->
+            <div *ngIf="i % 2 === 0"
+              class="absolute top-2 left-2 px-2 py-0.5 bg-black/20 backdrop-blur-sm rounded-sm z-10 transition-all">
+              <span class="text-white text-[11px] font-bold">Top liked</span>
+            </div>
+
+            <!-- Date Badge -->
+            <div class="absolute bottom-2 left-2 z-10">
+              <span class="text-white text-[12px] font-black drop-shadow-md">Jan 19</span>
+            </div>
+
+            <div class="absolute bottom-2 right-2 z-10">
+              <ion-icon name="volume-mute" class="text-white text-lg drop-shadow-md"></ion-icon>
+            </div>
+          </div>
+
+          <div class="px-2 pt-2">
+            <p class="text-black font-bold text-[14px] line-clamp-2 leading-snug mb-2">
+              {{video.description || '#trending #viral #foryoupage'}}
+            </p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5 overflow-hidden">
+                <div class="w-5 h-5 rounded-full overflow-hidden border border-gray-100 flex-shrink-0">
+                  <img [src]="video.userPhoto || 'https://i.pravatar.cc/150?u=creator'"
+                    class="w-full h-full object-cover">
+                </div>
+                <span class="text-gray-500 text-[11px] font-bold truncate">@{{video.username}}</span>
+              </div>
+              <div class="flex items-center gap-0.5 text-gray-400 flex-shrink-0 ml-2">
+                <ion-icon name="heart-outline" class="text-base"></ion-icon>
+                <span class="text-[11px] font-black">{{formatCount(video.likes) || '0'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="users.length === 0 && videos.length === 0 && searchTerm"
+      class="flex flex-col items-center justify-center pt-24 pb-12">
+      <ion-icon name="search-outline" class="text-6xl text-gray-200 mb-4"></ion-icon>
+      <h2 class="text-gray-400 font-bold text-[16px]">No results found for "{{searchTerm}}"</h2>
+    </div>
+  </div>
+</ion-content>

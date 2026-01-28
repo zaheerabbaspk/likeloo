@@ -1,0 +1,47 @@
+// Custom Styles for high-fidelity redesign
+.avatar-ring {
+    background: conic-gradient(#00c9e0, #00c9e0 25%, #fff 25%, #fff 50%, #00c9e0 50%, #00c9e0 75%, #fff 75%);
+}
+
+.speech-bubble {
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-right: 1px solid #f3f4f6;
+        border-bottom: 1px solid #f3f4f6;
+    }
+}
+
+.active-tab-line {
+    height: 2px;
+    background: #000;
+    width: 30px;
+    position: absolute;
+    bottom: 0;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.animate-spin-slow {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

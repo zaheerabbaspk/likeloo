@@ -1,0 +1,150 @@
+<ion-content [fullscreen]="true" class="bg-white">
+  <!-- Top Nav Original Management -->
+  <div class="flex items-center justify-between p-4 sticky top-0 bg-white z-50">
+    <ion-icon name="arrow-back-outline" class="text-3xl text-black active:scale-75 transition-transform"></ion-icon>
+    <div class="flex-1"></div>
+    <div class="flex gap-4 items-center">
+      <div class="relative">
+        <ion-icon name="person-add-outline" class="text-3xl text-black"></ion-icon>
+        <div
+          class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white">
+          1</div>
+      </div>
+      <ion-icon name="share-outline" class="text-3xl text-black"></ion-icon>
+      <ion-icon name="log-out-outline" class="text-3xl text-black cursor-pointer active:scale-75 transition-transform"
+        (click)="logout()"></ion-icon>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-center pt-2 px-4 pb-32" *ngIf="user">
+
+    <!-- Original Avatar Layout -->
+    <div class="relative mb-6">
+      <div
+        class="absolute -top-10 left-1/2 -translate-x-1/2 bg-white px-4 py-1.5 rounded-2xl shadow-md border border-gray-100 flex items-center justify-center min-w-[50px] z-10">
+        <span class="text-black font-bold text-sm">{{ user.displayName?.charAt(0) || 'U' }}</span>
+        <div
+          class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rotate-45 border-r border-b border-gray-100">
+        </div>
+      </div>
+
+      <div
+        class="w-[105px] h-[105px] rounded-full p-[3px] border-[2px] flex items-center justify-center relative bg-white transition-all cursor-pointer"
+        [ngClass]="isLive ? 'border-transparent bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-spin-slow p-[4px]' : 'border-gray-100'"
+        (click)="isLive ? goLive() : null">
+        <div class="w-full h-full rounded-full overflow-hidden border-2 border-white relative z-10">
+          <img [src]="user.photoURL || 'https://i.pravatar.cc/300?u=default'" class="w-full h-full object-cover">
+        </div>
+
+        <!-- Live Badge -->
+        <div *ngIf="isLive"
+          class="absolute -bottom-2 bg-[#fe2c55] text-white text-[10px] font-black px-2 py-0.5 rounded-sm border-2 border-white z-20 animate-pulse">
+          LIVE
+        </div>
+
+        <div *ngIf="!isLive"
+          class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#00c9e0] border-[3px] border-white flex items-center justify-center shadow-sm z-20">
+          <ion-icon name="add" class="text-white text-xl"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Username & Edit Row -->
+    <div class="flex items-center gap-2 mb-1">
+      <h1 class="text-[17px] font-black text-black">{{ user.displayName || 'User' }}</h1>
+      <div
+        class="bg-[#fe2c55] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border border-white shadow-sm">
+        9+</div>
+      <button routerLink="/edit-profile"
+        class="bg-gray-100 text-black font-black px-4 py-1.5 rounded-sm text-[13px] ml-1 active:scale-95 transition-transform">
+        Edit
+      </button>
+    </div>
+
+    <!-- Detailed Stats Row -->
+    <div class="flex justify-center gap-8 mb-8 w-full">
+      <div class="text-center">
+        <div class="text-[17px] font-black text-black leading-tight">{{ formatCount(user.following) }}</div>
+        <div class="text-[13px] text-gray-400 font-medium">Following</div>
+      </div>
+      <div class="text-center">
+        <div class="text-[17px] font-black text-black leading-tight">{{ formatCount(user.followers) }}</div>
+        <div class="text-[13px] text-gray-400 font-medium">Followers</div>
+      </div>
+      <div class="text-center">
+        <div class="text-[17px] font-black text-black leading-tight">{{ formatCount(user.likes) }}</div>
+        <div class="text-[13px] text-gray-400 font-medium">Likes</div>
+      </div>
+    </div>
+
+    <!-- Management Sections -->
+    <div class="flex flex-col items-center w-full">
+      <p class="text-[13px] text-gray-400 font-medium mb-6 text-center">{{ user.username || '@user' }}</p>
+
+      <div class="flex gap-2 w-full justify-center mb-8">
+        <button
+          class="bg-gray-100 text-black font-black px-5 py-2 rounded-md text-[14px] flex items-center gap-1 active:scale-95 transition-transform">
+          <ion-icon name="add" class="text-lg"></ion-icon> Add bio
+        </button>
+        <button
+          class="bg-gray-100 text-black font-black px-5 py-2 rounded-md text-[14px] flex items-center gap-1 active:scale-95 transition-transform">
+          <ion-icon name="add" class="text-lg"></ion-icon> Add college
+        </button>
+      </div>
+
+      <div
+        class="w-full flex items-center justify-center gap-2 mb-8 cursor-pointer active:opacity-60 transition-opacity">
+        <ion-icon name="sparkles" class="text-[#fe2c55] text-lg"></ion-icon>
+        <span class="text-black font-black text-[14px]">TikTok Studio</span>
+      </div>
+    </div>
+
+    <!-- Management Tabs -->
+    <div class="w-full flex justify-around border-t border-gray-100 sticky top-[60px] bg-white z-40 py-1">
+      <div class="flex-1 flex justify-center py-2 relative cursor-pointer" (click)="setTab('posts')">
+        <ion-icon name="grid-outline" [class.text-black]="activeTab === 'posts'"
+          [class.text-gray-300]="activeTab !== 'posts'" class="text-[26px]"></ion-icon>
+        <div *ngIf="activeTab === 'posts'" class="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-black"></div>
+      </div>
+      <div class="flex-1 flex justify-center py-2 relative cursor-pointer" (click)="setTab('liked')">
+        <ion-icon name="heart-outline" [class.text-black]="activeTab === 'liked'"
+          [class.text-gray-300]="activeTab !== 'liked'" class="text-[26px]"></ion-icon>
+        <div *ngIf="activeTab === 'liked'" class="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-black"></div>
+      </div>
+      <div class="flex-1 flex justify-center py-2">
+        <ion-icon name="lock-closed-outline" class="text-[26px] text-gray-300"></ion-icon>
+      </div>
+      <div class="flex-1 flex justify-center py-2">
+        <ion-icon name="bookmark-outline" class="text-[26px] text-gray-300"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Video Grid (Original style) -->
+    <div class="grid grid-cols-3 gap-[1px] w-full mt-1">
+      <ng-container *ngIf="activeTab === 'posts'">
+        <div *ngFor="let p of posts; let i = index"
+          class="aspect-[3/4] bg-zinc-100 relative group overflow-hidden cursor-pointer active:opacity-80"
+          (click)="playVideo(i)">
+          <video [src]="p.url" class="w-full h-full object-cover" muted preload="metadata" playsinline></video>
+          <div class="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 z-10 font-black">
+            <ion-icon name="play-outline" class="text-sm text-white"></ion-icon>
+            <span class="text-[11px] text-white">{{formatCount(p.views || 0)}}</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+  </div>
+
+  <app-navigation></app-navigation>
+</ion-content>
+
+<!-- Modal for video playback -->
+<ion-modal [isOpen]="isModalOpen" (didDismiss)="closePlayer()">
+  <ng-template>
+    <!-- ... (Keep player logic if needed or just minimal for own profile) ... -->
+    <div class="w-full h-full bg-black relative flex flex-col overflow-hidden">
+      <video [src]="selectedVideo?.url" class="w-full h-full object-contain" autoplay loop muted playsinline></video>
+    </div>
+  </ng-template>
+</ion-modal>

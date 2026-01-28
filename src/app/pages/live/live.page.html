@@ -1,0 +1,209 @@
+<ion-content [fullscreen]="true" class="bg-black">
+    <!-- Top Header -->
+    <div
+        class="fixed top-0 left-0 right-0 z-50 flex flex-col p-4 bg-gradient-to-b from-black/90 to-transparent pointer-events-none">
+
+        <!-- Row 1: Streamer Info & Viewers -->
+        <div class="flex items-center justify-between w-full mb-4 pointer-events-auto">
+            <!-- Streamer Avatar + Info -->
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <img [src]="streamer.avatar" class="w-10 h-10 rounded-full border-2 border-[#fe2c55] object-cover">
+                    <div
+                        class="absolute -bottom-1 -right-1 bg-[#fe2c55] text-white text-[8px] font-black px-1.5 py-0.5 rounded-full animate-pulse">
+                        LIVE</div>
+                </div>
+                <div>
+                    <h1 class="text-white font-black text-sm drop-shadow-md">{{streamer.name}}</h1>
+                    <span class="text-white/80 text-xs shadow-black drop-shadow-sm">{{streamer.followers}} Fans</span>
+                </div>
+                <button
+                    class="bg-[#fe2c55] text-white text-xs font-black px-3 py-1 rounded-full active:scale-95 transition-transform">+Follow</button>
+            </div>
+
+            <!-- Right: Viewers + Close -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-1 bg-black/40 px-3 py-1 rounded-full backdrop-blur-md">
+                    <ion-icon name="people" class="text-white text-sm"></ion-icon>
+                    <span class="text-white text-xs font-bold">{{viewerCount}}</span>
+                </div>
+                <ion-icon name="close-outline" (click)="close()"
+                    class="text-white text-3xl cursor-pointer active:scale-90 transition-transform drop-shadow-md"></ion-icon>
+            </div>
+        </div>
+
+        <!-- PK SCORING BAR (TikTok Style) -->
+        <div *ngIf="isPkMode" class="w-full relative mt-2 animate-slide-down px-2">
+            <!-- MVP Slots (Gifter Avatars) & Timer Row -->
+            <div class="flex justify-between items-center mb-1">
+                <!-- Host MVP Slots -->
+                <div class="flex -space-x-2">
+                    <div *ngFor="let g of topGiftersA"
+                        class="w-6 h-6 rounded-full border border-white/40 overflow-hidden bg-black/20">
+                        <img [src]="g.avatar" class="w-full h-full object-cover">
+                    </div>
+                    <div *ngIf="topGiftersA.length === 0"
+                        class="w-6 h-6 rounded-full border border-white/20 border-dashed"></div>
+                </div>
+
+                <!-- Timer & Match Info -->
+                <div
+                    class="flex flex-col items-center bg-black/40 px-4 py-0.5 rounded-full backdrop-blur-md border border-white/10">
+                    <span class="text-white font-mono font-black text-sm tracking-tighter">02:38</span>
+                </div>
+
+                <!-- Opponent MVP Slots -->
+                <div class="flex -space-x-2 flex-row-reverse space-x-reverse">
+                    <div *ngFor="let g of topGiftersB"
+                        class="w-6 h-6 rounded-full border border-white/40 overflow-hidden bg-black/20">
+                        <img [src]="g.avatar" class="w-full h-full object-cover">
+                    </div>
+                    <div *ngIf="topGiftersB.length === 0"
+                        class="w-6 h-6 rounded-full border border-white/20 border-dashed"></div>
+                </div>
+            </div>
+
+            <!-- The Slanted Progress Bar -->
+            <div
+                class="h-6 w-full flex rounded-full overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)] relative bg-white/10 p-[1px]">
+                <div class="flex w-full h-full rounded-full overflow-hidden">
+                    <!-- Host Progress (Red) -->
+                    <div class="h-full pk-gradient-red transition-all duration-700 clip-slanted-r flex items-center pl-3"
+                        [style.width.%]="pkProgress" [class.glow-red]="pkProgress > 50">
+                        <span class="text-white font-black text-xs drop-shadow-md italic">{{streamer.coins}}</span>
+                    </div>
+
+                    <!-- Opponent Progress (Blue) -->
+                    <div class="h-full pk-gradient-blue transition-all duration-700 clip-slanted-l flex items-center justify-end pr-3 flex-1"
+                        [class.glow-blue]="pkProgress < 50">
+                        <span class="text-white font-black text-xs drop-shadow-md italic">{{pkOpponentScore}}</span>
+                    </div>
+                </div>
+
+                <!-- VS Badge - Pulsing Center -->
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 animate-pulse-vs">
+                    <div
+                        class="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-[0_0_10px_rgba(255,255,255,0.8)] border-[1px] border-black/20">
+                        <span class="text-black font-black text-[9px] italic">VS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Win/Loss Badges Overlaying the Bar -->
+            <div class="flex justify-between px-2 -mt-1 relative z-20">
+                <div *ngIf="pkProgress > 50"
+                    class="bg-yellow-400 text-black text-[8px] font-black px-2 py-0.5 rounded shadow-md uppercase tracking-tighter">
+                    Leading</div>
+                <div *ngIf="pkProgress <= 50"
+                    class="bg-white/20 text-white/40 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-tighter">
+                    Trailing</div>
+
+                <div *ngIf="pkProgress < 50"
+                    class="bg-yellow-400 text-black text-[8px] font-black px-2 py-0.5 rounded shadow-md uppercase tracking-tighter">
+                    Leading</div>
+                <div *ngIf="pkProgress >= 50"
+                    class="bg-white/20 text-white/40 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-tighter">
+                    Trailing</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player -->
+    <div class="absolute inset-0 bg-black flex">
+        <!-- Main Remote Video (Broadcaster) -->
+        <div [class]="isPkMode ? 'w-1/2 h-full' : 'w-full h-full'">
+            <video #remoteVideo autoplay playsinline class="w-full h-full object-cover"></video>
+
+            <!-- PK Host Label (Glassmorphism) -->
+            <div *ngIf="isPkMode"
+                class="absolute top-28 left-2 bg-black/30 backdrop-blur-md px-3 py-1 rounded-sm border-l-2 border-[#fe2c55] text-[10px] font-black text-white z-10 uppercase tracking-widest italic">
+                Host
+            </div>
+        </div>
+
+        <!-- PK Remote Video (Opponent) -->
+        <div *ngIf="isPkMode" class="w-1/2 h-full relative">
+            <video #pkVideo autoplay playsinline class="w-full h-full object-cover"></video>
+
+            <!-- PK Opponent Label (Glassmorphism) -->
+            <div
+                class="absolute top-28 right-2 bg-black/30 backdrop-blur-md px-3 py-1 rounded-sm border-r-2 border-blue-500 text-[10px] font-black text-white z-10 uppercase tracking-widest italic">
+                Challenger
+            </div>
+        </div>
+
+        <!-- Double Tap Overlay -->
+        <div class="absolute inset-0 z-0" (click)="handleDoubleTap($event)"></div>
+
+        <!-- VS Animation Overlay -->
+        <div *ngIf="isPkMode" class="pointer-events-none absolute inset-0 flex items-center justify-center z-10">
+            <img src="assets/icon/vs.png" class="w-20 h-20 animate-bounce drop-shadow-lg"
+                onerror="this.style.display='none'">
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="!isConnected" class="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+            <div class="flex flex-col items-center">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-white mb-2"></div>
+                <p class="text-white text-sm font-medium">Connecting to stream...</p>
+            </div>
+        </div>
+    </div>
+    <!-- 3D Gift Overlays -->
+    <div class="fixed inset-0 pointer-events-none z-[60] flex items-center justify-center overflow-hidden">
+        <!-- Lion Animation -->
+        <div *ngIf="activeGiftAnimation === 'Lion'" class="animate-lion-roar relative">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png"
+                class="w-64 h-64 drop-shadow-[0_0_50px_rgba(255,215,0,0.8)]">
+            <div class="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full animate-pulse"></div>
+        </div>
+
+        <!-- 3D Flower Animation -->
+        <div *ngIf="activeGiftAnimation === 'Flower'" class="animate-flower-bloom perspective-1000">
+            <img src="https://cdn-icons-png.flaticon.com/512/1892/1892751.png"
+                class="w-48 h-48 drop-shadow-[0_0_30px_rgba(255,105,180,0.8)] transform-style-3d rotate-12">
+            <div class="absolute inset-0 bg-pink-500/20 blur-2xl rounded-full animate-pulse"></div>
+        </div>
+    </div>
+
+    <!-- Live Comments Overlay -->
+    <div
+        class="fixed bottom-36 left-0 right-0 z-20 px-4 flex flex-col gap-2 max-h-40 overflow-hidden pointer-events-none">
+        <div *ngFor="let c of liveComments.slice(-10)"
+            class="flex items-center gap-2 bg-black/40 backdrop-blur-sm w-fit px-3 py-1.5 rounded-full animate-slide-up"
+            [ngClass]="{'bg-green-500/30': c.isJoin}">
+            <img [src]="c.avatar" class="w-6 h-6 rounded-full object-cover">
+            <span class="text-white font-bold text-xs">{{c.user}}</span>
+            <span class="text-white/80 text-xs">{{c.text}}</span>
+        </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black via-black/90 to-transparent p-4 pb-8">
+        <!-- Comment Input Row -->
+        <div class="flex items-center gap-3">
+            <div class="flex-1 bg-white/10 rounded-full flex items-center px-4 py-3 gap-2">
+                <input type="text" [(ngModel)]="comment" (keyup.enter)="sendComment()" placeholder="Say something..."
+                    class="flex-1 bg-transparent text-white text-sm placeholder:text-white/40 outline-none">
+            </div>
+
+            <!-- Send Button -->
+            <button (click)="sendComment()"
+                class="w-12 h-12 bg-[#fe2c55] rounded-full flex items-center justify-center active:scale-95 transition-transform">
+                <ion-icon name="send" class="text-white text-xl"></ion-icon>
+            </button>
+        </div>
+
+        <!-- Quick Gifts Row -->
+        <div class="flex items-center gap-4 mt-4 overflow-x-auto no-scrollbar px-2">
+            <div *ngFor="let g of gifts" (click)="sendGift(g)"
+                class="flex flex-col items-center gap-1 min-w-[60px] cursor-pointer active:scale-90 transition-transform">
+                <div
+                    class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-2xl hover:bg-white/20 transition-colors">
+                    {{g.icon}}
+                </div>
+                <span class="text-white/60 text-[10px] font-bold">{{g.coins}} 💰</span>
+            </div>
+        </div>
+    </div>
+</ion-content>

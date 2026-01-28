@@ -1,0 +1,63 @@
+:host {
+    --ion-background-color: #f9f9f9;
+}
+
+ion-content {
+    --background: #f9f9f9;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+// Transitions & Animations
+.transition-all {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.active\:scale-75:active {
+    transform: scale(0.75);
+}
+
+.active\:scale-90:active {
+    transform: scale(0.9);
+}
+
+.active\:scale-95:active {
+    transform: scale(0.95);
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+// Chat Bubbles Custom Shape
+.rounded-tl-none {
+    border-top-left-radius: 4px !important;
+}
+
+.rounded-tr-none {
+    border-top-right-radius: 4px !important;
+}
+
+// Fix for input bar floating
+.fixed.bottom-0 {
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
+}

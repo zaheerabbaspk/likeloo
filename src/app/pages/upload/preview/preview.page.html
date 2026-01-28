@@ -1,0 +1,76 @@
+<ion-content [fullscreen]="true" class="bg-black">
+  <!-- Top Overlay -->
+  <div
+    class="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-6 bg-gradient-to-b from-black/40 to-transparent">
+    <ion-icon name="chevron-back" class="text-4xl text-white cursor-pointer active:scale-75 transition-transform"
+      (click)="goBack()"></ion-icon>
+
+    <div
+      class="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full border border-white/20 active:scale-95 transition-transform">
+      <ion-icon name="musical-notes" class="text-white text-sm"
+        [ngClass]="{'animate-spin-slow': selectedSound}"></ion-icon>
+      <span class="text-white text-[13px] font-bold">{{selectedSound ? selectedSound.title : 'Add sound'}}</span>
+    </div>
+
+    <div class="w-10"></div> <!-- Spacer -->
+  </div>
+
+  <!-- Video Preview Area -->
+  <div class="w-full h-full bg-black flex items-center justify-center relative">
+    <!-- Cinema Playback of real pending file -->
+    <video *ngIf="videoUrl" class="w-full h-full object-cover" [src]="videoUrl" autoplay loop
+      [muted]="selectedSound ? true : false" playsinline>
+    </video>
+
+    <!-- Right Sidebar Editing (Screenshot Match) -->
+    <div class="absolute right-4 top-24 z-50 flex flex-col gap-6 items-center">
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform">
+        <ion-icon name="color-filter-outline" class="text-3xl text-white"></ion-icon>
+      </div>
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform">
+        <ion-icon name="text-outline" class="text-3xl text-white"></ion-icon>
+        <span class="text-[10px] text-white font-bold">Text</span>
+      </div>
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform">
+        <ion-icon name="happy-outline" class="text-3xl text-white"></ion-icon>
+        <span class="text-[10px] text-white font-bold">Stickers</span>
+      </div>
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform">
+        <ion-icon name="magic-outline" class="text-3xl text-white"></ion-icon>
+        <span class="text-[10px] text-white font-bold">Effects</span>
+      </div>
+      <div class="flex flex-col items-center gap-1 active:scale-90 transition-transform">
+        <ion-icon name="speedometer-outline" class="text-3xl text-white"></ion-icon>
+      </div>
+      <ion-icon name="chevron-down-outline" class="text-white text-xl"></ion-icon>
+    </div>
+
+    <!-- AutoCut Button (Screenshot Match) -->
+    <div class="absolute bottom-32 left-1/2 -translate-x-1/2 z-50">
+      <div
+        class="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 flex items-center gap-2 active:scale-95 transition-transform">
+        <ion-icon name="sparkles" class="text-white text-sm"></ion-icon>
+        <span class="text-white text-[13px] font-black uppercase tracking-widest">AutoCut</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Row (Screenshot Match) -->
+  <div class="absolute bottom-0 left-0 right-0 z-50 p-6 flex gap-4 bg-gradient-to-t from-black/60 to-transparent pb-10">
+    <!-- Your Story Button -->
+    <button
+      class="flex-1 bg-white flex items-center justify-center gap-3 py-4 rounded-md active:scale-95 transition-transform">
+      <div class="w-6 h-6 rounded-full overflow-hidden border border-gray-200">
+        <img src="https://i.pravatar.cc/100?u=me" class="w-full h-full object-cover">
+      </div>
+      <span class="text-black font-black text-sm">Your Story</span>
+    </button>
+
+    <!-- NEXT BUTTON (SCREENSHOT RED) -->
+    <button
+      class="flex-1 bg-[#fe2c55] text-white font-black py-4 rounded-md active:scale-95 transition-transform text-sm tracking-widest uppercase shadow-[0_0_15px_rgba(254,44,85,0.4)]"
+      (click)="goToPost()">
+      Next
+    </button>
+  </div>
+</ion-content>

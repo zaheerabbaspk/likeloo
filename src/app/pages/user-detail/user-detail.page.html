@@ -1,0 +1,209 @@
+<ion-content [fullscreen]="true" class="bg-white">
+  <!-- Top Nav High Fidelity (Discovery focused) -->
+  <div class="flex items-center justify-between p-4 sticky top-0 bg-white z-50">
+    <ion-icon name="chevron-back" class="text-3xl text-black active:scale-75 transition-transform"
+      (click)="goBack()"></ion-icon>
+
+    <div class="flex gap-4 items-center">
+      <ion-icon name="notifications-outline" class="text-3xl text-black"></ion-icon>
+      <ion-icon name="share-social-outline" class="text-3xl text-black" (click)="shareProfile()"></ion-icon>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-center pt-2 px-4 pb-32" *ngIf="user">
+
+    <!-- Avatar with Blue discovery Ring -->
+    <div class="relative mb-6">
+      <div
+        class="w-[105px] h-[105px] rounded-full p-[3px] border-[2px] border-[#00c9e0] flex items-center justify-center relative bg-white">
+        <div class="w-full h-full rounded-full overflow-hidden border-[3px] border-white">
+          <img [src]="user.photoURL || 'https://i.pravatar.cc/300?u=default'" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+
+    <!-- Display Name & Handle -->
+    <h1 class="text-[17px] font-black text-black mb-1">{{ user.displayName || 'User' }}</h1>
+    <p class="text-[13px] text-gray-500 font-medium mb-6">@{{ user.username || 'user' }}</p>
+
+    <!-- Detailed Stats Row -->
+    <div class="flex justify-center gap-8 mb-8 w-full border-b border-gray-50 pb-4">
+      <div class="text-center">
+        <div class="text-[17px] font-black text-black leading-tight">{{ formatCount(user.following) }}</div>
+        <div class="text-[13px] text-gray-400 font-medium">Following</div>
+      </div>
+      <div class="text-center">
+        <div class="text-[17px] font-black text-black leading-tight">{{ formatCount(user.followers) }}</div>
+        <div class="text-[13px] text-gray-400 font-medium">Followers</div>
+      </div>
+      <div class="text-center">
+        <div class="text-[17px] font-black text-black leading-tight">{{ formatCount(user.likes) }}</div>
+        <div class="text-[13px] text-gray-400 font-medium">Likes</div>
+      </div>
+    </div>
+
+    <!-- Discovery Action Buttons (Follow, Message) -->
+    <div class="flex items-center gap-2 mb-6 w-full justify-center px-4">
+      <button (click)="toggleFollow()"
+        class="flex-1 py-3 rounded-sm font-black text-[15px] transition-all active:scale-95 shadow-sm"
+        [ngClass]="user.isFollowing ? 'bg-gray-100 text-black' : 'bg-[#fe2c55] text-white'">
+        {{ user.isFollowing ? 'Following' : 'Follow' }}
+      </button>
+      <button (click)="openChat()"
+        class="flex-1 py-3 rounded-sm font-black text-[15px] bg-gray-100 text-black active:scale-95 transition-all shadow-sm">
+        Message
+      </button>
+      <button class="bg-gray-100 p-3 rounded-sm flex items-center justify-center active:scale-90 shadow-sm">
+        <ion-icon name="caret-down" class="text-black"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Extended Bio / Links (As per Screenshot) -->
+    <div class="flex flex-col items-center w-full mb-6">
+      <p class="text-[13px] text-black font-bold mb-4 text-center">@{{ user.username || 'creator' }} ✨✨✨</p>
+
+      <div class="flex items-center gap-1 text-[13px] font-bold text-black mb-6">
+        <ion-icon name="link-outline" class="text-lg"></ion-icon>
+        <span class="text-[#000]">https://www.youtube.com/@{{user.username}}...</span>
+      </div>
+
+      <div class="flex items-center gap-2 text-[14px] font-black text-[#fe2c55] mt-2 mb-4">
+        <ion-icon name="star-outline" class="text-lg"></ion-icon>
+        <span>Subscription</span>
+      </div>
+    </div>
+
+    <!-- Discovery Tabs (Screenshot Match) -->
+    <div class="w-full flex justify-around border-t border-gray-100 sticky top-[60px] bg-white z-40 py-1">
+      <div class="flex-1 flex justify-center py-2 relative cursor-pointer" (click)="setTab('posts')">
+        <ion-icon name="menu-outline" [class.text-black]="activeTab === 'posts'"
+          [class.text-gray-300]="activeTab !== 'posts'" class="text-[26px]"></ion-icon>
+        <div *ngIf="activeTab === 'posts'" class="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-black"></div>
+      </div>
+      <div class="flex-1 flex justify-center py-2">
+        <ion-icon name="logo-twitch" class="text-[26px] text-gray-300"></ion-icon>
+      </div>
+      <div class="flex-1 flex justify-center py-2">
+        <ion-icon name="repeat-outline" class="text-[26px] text-gray-300"></ion-icon>
+      </div>
+      <div class="flex-1 flex justify-center py-2 relative cursor-pointer" (click)="setTab('liked')">
+        <ion-icon name="bookmark-outline" [class.text-black]="activeTab === 'liked'"
+          [class.text-gray-300]="activeTab !== 'liked'" class="text-[26px]"></ion-icon>
+        <div *ngIf="activeTab === 'liked'" class="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-black"></div>
+      </div>
+    </div>
+
+    <!-- Video Discovery Grid -->
+    <div class="grid grid-cols-3 gap-[1px] w-full mt-1">
+      <div *ngFor="let p of posts; let i = index"
+        class="aspect-[3/4] bg-zinc-100 relative group overflow-hidden cursor-pointer active:opacity-80 border-white border-[0.5px]"
+        (click)="playVideo(i)">
+        <video [src]="p.url" class="w-full h-full object-cover" muted preload="metadata" playsinline></video>
+
+        <!-- Pinned Badge Badge -->
+        <div *ngIf="i < 3"
+          class="absolute top-0 left-0 bg-[#fe2c55] text-white text-[10px] font-black px-1.5 py-0.5 z-10">
+          Pinned
+        </div>
+
+        <div class="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 z-10 font-bold drop-shadow-md">
+          <ion-icon name="play-outline" class="text-lg text-white"></ion-icon>
+          <span class="text-[12px] text-white">{{formatCount(p.views || 0)}}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <app-navigation></app-navigation>
+</ion-content>
+
+<!-- Modal for video playback -->
+<ion-modal [isOpen]="isModalOpen" (didDismiss)="closePlayer()">
+  <ng-template>
+    <div class="w-full h-full bg-black relative flex flex-col overflow-hidden">
+      <!-- Top Actions -->
+      <div class="absolute top-0 left-0 right-0 z-[210] p-6 flex items-center justify-between pointer-events-none">
+        <ion-icon name="chevron-back"
+          class="text-3xl text-white cursor-pointer active:scale-75 pointer-events-auto shadow-sm"
+          (click)="closePlayer()"></ion-icon>
+        <ion-icon name="search-outline" class="text-2xl text-white pointer-events-auto drop-shadow-md"></ion-icon>
+      </div>
+
+      <!-- Main Video Player -->
+      <div class="w-full h-full relative" (click)="togglePlay($event)">
+        <video [src]="selectedVideo?.url" class="w-full h-full object-contain bg-black" autoplay loop muted playsinline
+          preload="auto"></video>
+
+        <!-- Right Interaction Sidebar -->
+        <div class="absolute right-3 bottom-24 z-[210] flex flex-col items-center gap-5">
+          <!-- Avatar Icon -->
+          <div class="relative mb-3">
+            <div class="w-12 h-12 rounded-full border-[2px] border-white overflow-hidden shadow-2xl">
+              <img [src]="user.photoURL || 'https://i.pravatar.cc/150?u=' + user.uid"
+                class="w-full h-full object-cover">
+            </div>
+          </div>
+
+          <!-- Like -->
+          <div class="flex flex-col items-center gap-0.5 group pointer-events-auto">
+            <ion-icon name="heart" class="text-4xl drop-shadow-md transition-transform group-active:scale-125"
+              [class.text-[#fe2c55]]="selectedVideo?.isLiked" [class.text-white]="!selectedVideo?.isLiked"></ion-icon>
+            <span class="text-white text-[11px] font-black drop-shadow-md">{{formatCount(selectedVideo?.likes ||
+              0)}}</span>
+          </div>
+
+          <!-- Comment -->
+          <div class="flex flex-col items-center gap-0.5 group pointer-events-auto">
+            <ion-icon name="chatbubble"
+              class="text-4xl text-white drop-shadow-md transition-transform group-active:scale-110"></ion-icon>
+            <span class="text-white text-[11px] font-black drop-shadow-md">{{formatCount(selectedVideo?.comments ||
+              0)}}</span>
+          </div>
+
+          <!-- Bookmark -->
+          <div class="flex flex-col items-center gap-0.5 group pointer-events-auto">
+            <ion-icon name="bookmark"
+              class="text-4xl text-white drop-shadow-md transition-transform group-active:scale-110"></ion-icon>
+            <span class="text-white text-[11px] font-black drop-shadow-md">45.2K</span>
+          </div>
+
+          <!-- Share -->
+          <div class="flex flex-col items-center gap-0.5 group pointer-events-auto">
+            <ion-icon name="share-social"
+              class="text-4xl text-white drop-shadow-md transition-transform group-active:scale-110"></ion-icon>
+            <span class="text-white text-[11px] font-black drop-shadow-md">{{formatCount(selectedVideo?.shares ||
+              0)}}</span>
+          </div>
+
+          <!-- Spinning Record -->
+          <div
+            class="w-11 h-11 rounded-full bg-gradient-to-tr from-zinc-800 to-black p-2 animate-spin-slow shadow-2xl mt-3 border border-zinc-700/50">
+            <div class="w-full h-full rounded-full overflow-hidden border border-zinc-600">
+              <img [src]="user.photoURL" class="w-full h-full object-cover opacity-80">
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Detail Card -->
+        <div class="absolute bottom-24 left-4 right-20 z-[210] pointer-events-none drop-shadow-2xl">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-white font-black text-[16px] tracking-tight">{{user.displayName || 'Creator'}}</span>
+            <p class="text-white/95 text-[14px] leading-snug line-clamp-3">
+              {{selectedVideo?.description || selectedVideo?.title || 'Check out this video! #Toko'}}
+            </p>
+            <div class="flex items-center gap-2 mt-2">
+              <ion-icon name="musical-notes" class="text-white text-sm"></ion-icon>
+              <span class="text-white text-[12px] font-medium opacity-90">Original sound - {{user.displayName}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Progress Bar -->
+        <div class="absolute bottom-16 left-0 h-0.5 bg-white/30 z-20 w-full overflow-hidden">
+          <div class="h-full bg-white transition-all shadow-[0_0_8px_white]" [style.width]="'35%'"></div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

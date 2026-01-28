@@ -1,0 +1,99 @@
+<ion-content [fullscreen]="true" class="bg-white">
+  <!-- Top Nav -->
+  <div class="flex items-center p-4 sticky top-0 bg-white z-50">
+    <ion-icon name="chevron-back" class="text-3xl text-black cursor-pointer active:scale-90"
+      (click)="goBack()"></ion-icon>
+  </div>
+
+  <div class="px-6 pb-40">
+    <!-- Description & Thumbnail Area -->
+    <div class="flex gap-4 mb-8">
+      <div class="flex-1">
+        <textarea
+          class="w-full h-32 border-none outline-none text-[15px] p-0 placeholder:text-gray-400 font-medium no-scrollbar"
+          placeholder="Add description..." [(ngModel)]="description">
+            </textarea>
+
+        <div class="flex gap-2 mt-2">
+          <button
+            class="bg-gray-100 text-black font-black px-4 py-1.5 rounded-sm text-[13px] active:scale-95 transition-transform flex items-center gap-1">
+            # Hashtags
+          </button>
+          <button
+            class="bg-gray-100 text-black font-black px-4 py-1.5 rounded-sm text-[13px] active:scale-95 transition-transform flex items-center gap-1">
+            @ Mention
+          </button>
+        </div>
+      </div>
+
+      <!-- Real Thumbnail -->
+      <div class="w-32 h-44 rounded-md overflow-hidden relative group bg-zinc-900 shadow-lg">
+        <video *ngIf="videoUrl" class="w-full h-full object-cover opacity-60" [src]="videoUrl" muted></video>
+        <div class="absolute inset-0 flex flex-col items-center justify-between p-2">
+          <span
+            class="text-white text-[10px] font-black uppercase tracking-widest bg-black/40 px-1 rounded-sm">Preview</span>
+          <div class="bg-black/60 backdrop-blur-md w-full py-1.5 rounded-sm text-center">
+            <span class="text-white text-[10px] font-black">Edit cover</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options List (Screenshot Match) -->
+    <div class="flex flex-col border-t border-gray-50">
+      <div
+        class="flex items-center justify-between py-5 border-b border-gray-50 active:bg-gray-50 transition-colors cursor-pointer">
+        <div class="flex items-center gap-4">
+          <ion-icon name="location-outline" class="text-2xl text-black"></ion-icon>
+          <span class="text-base font-bold text-black">Location</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="text-sm text-gray-400">Park, Lahore, Pakistan...</span>
+          <ion-icon name="chevron-forward" class="text-gray-300"></ion-icon>
+        </div>
+      </div>
+
+      <div
+        class="flex items-center justify-between py-5 border-b border-gray-50 active:bg-gray-50 transition-colors cursor-pointer">
+        <div class="flex items-center gap-4">
+          <ion-icon name="add-outline" class="text-2xl text-black"></ion-icon>
+          <span class="text-base font-bold text-black">Add link</span>
+        </div>
+        <ion-icon name="chevron-forward" class="text-gray-300"></ion-icon>
+      </div>
+
+      <div
+        class="flex items-center justify-between py-5 border-b border-gray-50 active:bg-gray-50 transition-colors cursor-pointer">
+        <div class="flex items-center gap-4">
+          <ion-icon name="earth-outline" class="text-2xl text-black"></ion-icon>
+          <span class="text-base font-bold text-black">Everyone can view this post</span>
+        </div>
+        <ion-icon name="chevron-forward" class="text-gray-300"></ion-icon>
+      </div>
+
+      <div
+        class="flex items-center justify-between py-5 border-b border-gray-50 active:bg-gray-50 transition-colors cursor-pointer">
+        <div class="flex items-center gap-4">
+          <ion-icon name="settings-outline" class="text-2xl text-black"></ion-icon>
+          <span class="text-base font-bold text-black">More options</span>
+        </div>
+        <ion-icon name="chevron-forward" class="text-gray-300"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Buttons (Screenshot Match) -->
+  <div class="fixed bottom-0 left-0 right-0 p-6 flex gap-4 bg-white border-t border-gray-100 pb-10 z-[100]">
+    <button
+      class="flex-1 bg-gray-100 text-black font-black py-4 rounded-md active:scale-95 transition-transform text-sm tracking-widest uppercase flex items-center justify-center gap-2">
+      <ion-icon name="archive-outline" class="text-lg"></ion-icon>
+      Drafts
+    </button>
+    <button
+      class="flex-1 bg-[#fe2c55] text-white font-black py-4 rounded-md active:scale-95 transition-transform text-sm tracking-widest uppercase flex items-center justify-center gap-2 shadow-lg"
+      (click)="post()">
+      <ion-icon name="cloud-upload-outline" class="text-xl"></ion-icon>
+      Post
+    </button>
+  </div>
+</ion-content>
